@@ -1,0 +1,71 @@
+<%- include header %>
+
+<form class="form-horizontal" method="post">
+<fieldset>
+	<legend><h1><%= title %></h1></legend>
+	<div class="col-md-7">
+		<form role="form">
+			<div class="form-group">
+				<div class="row">
+					<div class="col-md-3 col-md-offset-1">
+						<label class="control-label" for="username">Username</label>
+					</div>
+					<div class="col-md-8">
+						<div class="input-group">
+							<input type="text" class="form-control" id="username" name="username" autofocus="autofocus" required="required" maxlength="25" placeholder="Username">
+							<span class="input-group-btn">
+								<button type="button" class="btn btn-default" data-toggle="tooltip" data-placement="right" title="Please use number or letter to form an username, no special symbol is supported.">!</button>
+							</span>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="row">
+					<div class="col-md-3 col-md-offset-1">
+						<label class="control-label" for="password">Password</label>
+					</div>
+					<div class="col-md-8">
+						<div class="input-group">
+							<input type="password" class="form-control" id="password" name="password" required="required" maxlength="25" placeholder="Password">
+							<span class="input-group-btn">
+								<button type="button" class="btn btn-default" data-toggle="tooltip" data-placement="right" title="The length of password must be at least 5 but no more than 25.">!</button>
+							</span>
+						</div>			
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="row">
+					<div class="col-md-3 col-md-offset-1">
+						<label class="control-label" for="reEnterPassword">Re-enter Password</label>
+					</div>
+					<div class="col-md-8">
+						<div class="input-group">	
+							<input type="password" class="form-control" id="reEnterPassword" name="reEnterPassword" required="required" maxlength="25" placeholder="Re-enter Password">
+							<span class="input-group-btn">
+								<button type="button" class="btn btn-default" data-toggle="tooltip" data-placement="right" title="The length of password must be at least 5 but no more than 25.">!</button>
+							</span>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="row">
+					<div class="col-md-3 col-md-offset-1">
+						<label class="control-label" for="email">Email</label>
+					</div>
+					<div class="col-md-8">
+						<input type="email" class="form-control" id="email" name="email" required="required" placeholder="Email">
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<button type="submit" class="btn btn-primary col-md-2 col-md-offset-4">Sign up</button>
+			</div>
+		</form> 
+	</div>
+</fieldset>
+</form>
+
+<%- include footer %>

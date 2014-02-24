@@ -1,0 +1,43 @@
+<%- include header %>
+
+<form class="form-horizontal" method="post">
+<fieldset>
+	<legend><h1><%= title %></h1></legend>
+	<div class="col-md-6">
+		<form role="form">
+			<div class="form-group">
+				<div class="row">
+					<div class="col-md-2 col-md-offset-1">
+						<label class="col-sm-2 control-label" for="username">Username</label>
+					</div>
+					<div class="col-md-8">
+						<input type="text" class="form-control" id="username" name="username" autofocus="autofocus" required="required" maxlength="25" placeholder="Username">
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="row">
+					<div class="col-md-2 col-md-offset-1">
+						<label for="password" class="col-sm-2 control-label">Password</label>
+					</div>
+					<div class="col-md-8">
+						<input type="password" class="form-control" id="password" name="password" required="required" maxlength="25" placeholder="Password">
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-3 col-md-offset-3">
+					<button type="submit" class="btn btn-primary">Sign in</button>
+				</div>
+				<div class="col-md-4 col-md-offset-2">
+					<label class="control-label"><a href="/reset">Forgot password?</a></label>
+				</div>
+			</div>
+		</form>
+	</div>
+</fieldset>
+</form>
+
+
+
+<%- include footer %>

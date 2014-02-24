@@ -1,0 +1,43 @@
+<%- include header %>
+
+<form class="form-horizontal" method="post">
+<fieldset>
+	<legend><h1><%= title %></h1></legend>
+	<div class="col-md-8 col-md-offset-2">
+		<div class="scroll-area" data-spy="scroll" data-offset="0">
+			<table class="table table-hover table-bordered">
+				<% users.forEach(function (user, index) { %>
+					<tr>
+						<td>
+							<div class="row">
+								<div class="col-md-8">
+									<h4>
+										User Name: 
+										<a href="#">
+											<%= user.name %>
+										</a>
+										<small>
+											User Type: <%= user.userType %>
+										</small>
+									</h4>
+								</div>
+								<div class="col-md-4">
+								<% if(user.name != "admin") { %>
+									<div class="pull-right">
+										<input type="checkbox">
+										<a class="edit" href="/permission/<%= user.name %>">Edit</a>
+									<a class="edit" href="/delete-user/<%= user.name %>/<%= user._id %>">Delete</a>
+									</div>
+								<% } %>
+								</div>
+							</div>
+						</td>
+					</tr>
+				<% }) %>
+			</table>
+		</div>
+	</div>
+</fieldset>
+</form>
+
+<%- include footer %>

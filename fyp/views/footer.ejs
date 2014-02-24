@@ -1,0 +1,38 @@
+<hr />
+<footer>
+	<div class="row">
+		<div class="col-md-4 col-md-offset-1">
+			<article>@<a href="https://www.facebook.com/zhenfeng.wu.7" target="_blank">Zhenfeng Wu</a> 2014</article>
+		</div>
+		<div class="col-md-5 col-md-offset-1">		
+			<article class="text pull-right" id="date"></article>
+			<script>
+				var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+				var today = new Date();
+				today.setTime(today.getTime());       
+				document.getElementById("date").innerHTML =months[today.getMonth()] + " " + today.getDate()+ ", " + today.getFullYear();
+			</script>
+		</div>
+	</div>
+	<br />
+</footer>
+</div>
+
+<script>
+$('#rateit2').on('beforerated', function (e, value) {
+  if (!confirm('Are you sure you want to rate this item: ' +  value + ' stars?')) {
+	  e.preventDefault();
+  }
+});
+$('#rateit2').on('beforereset', function (e) {
+  if (!confirm('Are you sure you want to reset the rating?')) {
+	  e.preventDefault();
+  }
+}); 
+</script>
+
+
+</body>
+<script src="/javascripts/jquery.js"></script>
+<script src="/javascripts/bootstrap.js"></script>
+</html>

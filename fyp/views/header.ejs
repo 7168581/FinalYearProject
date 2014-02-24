@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<title>This is my FYP</title>
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/stylesheets/style.css" />
+	<link rel="stylesheet" href="/stylesheets/rateit.css" />
+
+
+</head>
+<body>
+	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+	<script src="/javascripts/jquery.rateit.js"></script>
+	
+<script>
+$(document).ready(function(){
+	$(".nav li").first().addClass('active');
+
+	$(".nav li").click(function(){
+		$(".nav li").removeClass('active');
+		$("#testing").text("successful");
+	});
+});
+</script>
+
+<nav class="navbar navbar-inverse" role="navigation">
+	<div class="collapse navbar-collapse" id="nav_bar">
+		<a class="navbar-brand" href="/">FYP</a>
+		<ul class="nav navbar-nav">
+			<li>
+				<a title="homepage" href="/">Homepage</a>
+			</li>
+			<% if (user) { %>
+			<li>
+				<a title="logout" href="/logout">Logout</a>
+			</li>
+				<% if (user.userType == "admin") {%>
+					<li>
+						<a title="add-item" href="/add-item">Add Item</a>
+					</li>
+				<% } %>
+				<% if (user.name == "admin") {%>
+					<li>
+						<a title="user-management" href="/user-management">User Management</a>
+					</li>
+				<% } %>
+			<% } else { %>
+			<li>
+				<a title="login" href="/login">Login</a>
+			</li>
+			<li>
+				<a title="register" href="/reg">Sign up</a>
+			</li>
+			<% } %>
+		</ul>
+		<% if (user) { %>
+			<p class="navbar-text navbar-right">
+				Signed in as <a href="#" class="navbar-link"><%= user.name %></a> | <a href="/reset" class="navbar-link">Change Password</a>
+			</p>
+		<% } %>
+	</div>
+</nav>
+
+<div id="container" class="container">
+
+<p id="testing">fail</p>
+
+<% if (success) { %>
+	<div class="alert alert-success">
+		<%= success %>
+	</div>
+<% } %>
+<% if (error) { %>
+	<div class="alert alert-danger">
+		<%= error %>
+	</div>
+<% } %>
