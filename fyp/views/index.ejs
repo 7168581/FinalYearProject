@@ -6,9 +6,9 @@
 
 <div class="jumbotron">
 <% if (!user) { %>
-	<h1>
+	<h2>
 		Welcome to FYP!
-	</h1>
+	</h2>
 	<p>
 		<a class="btn btn-primary" href="/login">Sign in</a>
 		<a class="btn btn-success" href="/reg">Sign up Now!!</a>
@@ -50,7 +50,7 @@
 								<% if (user.userType == "admin") { %>
 									<div class="pull-right">
 										<a class="edit" href="/edit-item/<%= item.itemId %>">Edit</a>
-										<a class="delete" href="#delete-modal" data-toggle="modal" data-id="<%= item.itemId %>" id="delete_item">Delete</a>
+										<a class="delete" href="#delete-modal" data-toggle="modal" onclick="delete_function('<%= item.itemId %>', '<%= item.itemName %>')" id="delete_item">Delete</a>
 									</div>
 								<% } %>
 							</h3>
@@ -71,21 +71,6 @@
 									</div>
 								</div>
 							</div>
-<script>
-$(document).ready(function(){
-	$(".panel-collapse").first().collapse('show');
-});
-
-$(document).ready(function(){
-  $("#delete_item").click(function(){
-	var id = $(this).data('id');
-    $("#modalP").text(id);
-	$("#delete_confirm_btn").attr('href', function(){
-		return "/delete-item/" + id;
-	})
-  });
-});
-</script>
 						</div>
 						<div class="panel-collapse collapse" id="panel_<%= item.itemId %>">
 							<div class="panel-body">
@@ -113,7 +98,35 @@ $("#rateit2").bind('rated', function (event, value){
 						</div>
 					</div>
 				<% }) %>
+<script>
+var item_id;
+var item_name;
+$(document).ready(function(){
+	$(".panel-collapse").first().collapse('show');
+});
+
+function delete_function(itemId, itemName){
+	item_id = itemId;
+	item_name = itemName;
+}
+
+$("#delete_confirm_btn").click(function(){
+	var url = "/delete-item/" + item_id;
+	window.location.href=url;
+});
+</script>
 				</div>
+			</div>
+			<div class="col-md-6 col-md-offset-3">
+				<ul class="pagination">
+				  <li class="disabled"><a href="#">&laquo;</a></li>
+				  <li class="active"><a href="#">1</a></li>
+				  <li><a href="#">2</a></li>
+				  <li><a href="#">3</a></li>
+				  <li><a href="#">4</a></li>
+				  <li><a href="#">5</a></li>
+				  <li><a href="#">&raquo;</a></li>
+				</ul>
 			</div>
 		</div>
 	<% if (user.userType == "admin") { %>
