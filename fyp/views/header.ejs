@@ -15,42 +15,59 @@
 	<script src="/javascripts/jquery.rateit.js"></script>
 	
 <script>
-$(document).ready(function(){
-	$(".nav li").first().addClass('active');
 
-	$(".nav li").click(function(){
-		$(".nav li").removeClass('active');
-		$("#testing").text("successful");
-	});
+
+$(document).ready(function(){
+	var title = $("h1").text();
+	$(".nav li").removeClass('active');
+	
+	switch(title){
+	case 'Sign up':
+		$("#reg_page").addClass('active');
+		break;
+	case 'Sign in':
+		$("#login_page").addClass('active');
+		document.getElementById("testing").innerHTML=title;
+		break;
+	case 'Add item':
+		$("#add_item_page").addClass('active');
+		break;
+	case 'User Management':
+		$("#user_management_page").addClass('active');
+		break;
+	default:
+		$(".nav li").first().addClass('active');
+	}
+
 });
 </script>
 
 <nav class="navbar navbar-inverse" role="navigation">
-	<div class="collapse navbar-collapse" id="nav_bar">
+	<div class="collapse navbar-collapse" ng-controller="headerController">
 		<a class="navbar-brand" href="/">FYP</a>
 		<ul class="nav navbar-nav">
 			<li>
-				<a title="homepage" href="/">Homepage</a>
+				<a href="/">Homepage</a>
 			</li>
 			<% if (user) { %>
-			<li>
-				<a title="logout" href="/logout">Logout</a>
+			<li id="logout_page">
+				<a href="/logout">Logout</a>
 			</li>
 				<% if (user.userType == "admin") {%>
-					<li>
-						<a title="add-item" href="/add-item">Add Item</a>
+					<li id="add_item_page">
+						<a href="/add-item">Add Item</a>
 					</li>
 				<% } %>
 				<% if (user.name == "admin") {%>
-					<li>
-						<a title="user-management" href="/user-management">User Management</a>
+					<li id="user_management_page">
+						<a href="/user-management">User Management</a>
 					</li>
 				<% } %>
 			<% } else { %>
-			<li>
+			<li id="login_page">
 				<a title="login" href="/login">Login</a>
 			</li>
-			<li>
+			<li id="reg_page">
 				<a title="register" href="/reg">Sign up</a>
 			</li>
 			<% } %>
@@ -64,8 +81,6 @@ $(document).ready(function(){
 </nav>
 
 <div id="container" class="container">
-
-<p id="testing">fail</p>
 
 <% if (success) { %>
 	<div class="alert alert-success">
