@@ -84,9 +84,9 @@ Rate.prototype.update = function(callback) {
 
   var rate = {
 	  itemId: this.itemId,
-	  time: time,
 	  userId: this.userId,
-	  rating: this.rating
+	  rating: this.rating,
+	  time: time
   };
   //open database
   mongodb.open(function (err, db) {
@@ -101,7 +101,7 @@ Rate.prototype.update = function(callback) {
       }
       //update rate information in the rate set
       collection.update(
-	{"itemName":rate.itemName, userId:rate.userId},
+	{"itemName":rate.itemName, "userId":rate.userId},
 	rate,
 	{safe: true
       }, function (err) {
