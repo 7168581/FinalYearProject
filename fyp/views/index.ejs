@@ -44,7 +44,7 @@
 					<div class="panel panel-default">
 						<div class="panel-heading">
 							<h3 class="panel-title">
-								<a href="#panel_<%= item.itemId %>" data-toggle="collapse" data-parent="#according">
+								<a href="#panel_<%= item.itemId %>" data-toggle="collapse" data-parent="#accordion">
 									<%= item.itemName %>
 								</a>
 								<% if (user.userType == "admin") { %>
@@ -81,16 +81,8 @@
 									<strong>User name:</strong> <a href="#"><%= item.userName %></a> | <strong>User id:</strong> <%= item.userId %>
 								</p>
 								<p class="text-muted">
-									<strong>Rate: <div class="rateit"  id="rateit1" data-rateit-value="2.5" data-rateit-ispreset="true" data-rateit-readonly="true"></div></strong> <%= item.rate %>
-									| <span class="rateit" id="rateit2"></span>	<div><span id="rateValue"></span></div>
-<script>									
-$("#rateit2").bind('over', function (event,value){
-	$(this).attr('title', value);
-});
-$("#rateit2").bind('rated', function (event, value){
-	$('#rateValue').text('You\'ve rated it: ' + value + '-star');
-});
-</script>
+									<strong>Rate: <div class="rateit"  id="rateit1" data-rateit-value="<%= item.rate %>" data-rateit-ispreset="true" data-rateit-readonly="true"></div></strong>
+									| <span class="rateit" id="rateit2" data-id="<%= item.itemId %>"></span> 
 								</p>
 								<p><strong>Description:</strong></p>
 								<p><%= item.description %></p>
@@ -100,20 +92,32 @@ $("#rateit2").bind('rated', function (event, value){
 				<% }) %>
 <script>
 var item_id;
-var item_name;
 $(document).ready(function(){
 	$(".panel-collapse").first().collapse('show');
 });
 
 function delete_function(itemId, itemName){
 	item_id = itemId;
-	item_name = itemName;
+	$("#modalP").text("Are you sure you want to delete \"" +itemName + "\"?");
 }
 
 $("#delete_confirm_btn").click(function(){
 	var url = "/delete-item/" + item_id;
 	window.location.href=url;
 });
+
+$('#accordion .rateit').bind('rated', function(event, value) {
+	var ri = $(this);
+	var rate_value = value;
+	var rated_itemId = ri.data('id');
+	
+	var url_1 = "/add-rate";
+	$.post(url_1,{rating: rate_value, itemId: rated_itemId},function(){
+			console.log('value saved as' + value);
+	});
+});
+
+$("#accordion .rateit").bind('over', function (event,value) { $(this).attr('title', value); });
 </script>
 				</div>
 			</div>
