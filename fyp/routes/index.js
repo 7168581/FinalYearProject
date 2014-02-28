@@ -3,6 +3,7 @@ var crypto = require('crypto'),
 	Item = require('../models/item.js'),
 	ObjectId = require('mongodb').ObjectID,
 	List = require('../models/list.js');
+	Rate = require('../models/rate.js');
 
 module.exports = function(app) {
   app.get('/', function (req, res) {
@@ -203,7 +204,7 @@ module.exports = function(app) {
 			return res.redirect('/add-item');
 		}
 //if not in the database
-		newItem.save(function(err,item){
+		newItem.save(function(err){
 			if(err){
 				req.flash('error',err);
 				return res.redirect('/add-item');
@@ -271,7 +272,7 @@ module.exports = function(app) {
 		req.flash('error','Item not exist');
 		return res.redirect('/');
 	}
-    res.render('edit-item', { 
+    res.render('edit-item', {
 	title: 'Edit item',
 	item: item,
 	user: req.session.user,
@@ -375,7 +376,42 @@ app.get('/delete-user/:userName/:userId', function (req, res) {
     res.redirect('/user-management');
   });
 });
-  
+
+//==========================AJAX to MongoDB=======================================
+app.post('/add-rate', function(req, res){
+
+	var itemId = req.body.itemId,
+		userId = req.session.user.userId,
+		rating = req.body.rating;
+		
+	Rate.get(itemId, userId,function(err, rate){
+    if (err) {
+      req.flash('error', err); 
+    }
+	var newRate = new Rate({
+		itemId: itemId,
+		userId: userId,
+		rating: rating
+	});
+	if (!rate) {
+	newRate.save(function(err){
+		if(err){
+			req.flash('error',err);
+		}
+		req.flash('success','Successfully added a new item');
+	});
+	}else{
+//in the database
+	newRate.update(function(err){
+		if(err){
+			req.flash('error',err);
+		}
+		req.flash('success','Successfully added a new item');
+	});
+	}
+	});
+});
+
 //==========================permission function=======================================
   function isLogin(req, res, next){
 	if(!req.session.user) {
