@@ -79,6 +79,38 @@ Rate.get = function(itemId, userId, callback) {
   });
 };
 
+//====================get all rate values of an item information================
+
+Rate.getItemRate = function(itemId, callback) {
+  //open database
+  mongodb.open(function (err, db) {
+    if (err) {
+      return callback(err);
+    }
+    //get the collection of rates
+    db.collection('rates', function (err, collection) {
+      if (err) {
+        mongodb.close();
+        return callback(err);
+      }
+      //look for a list of values of an item
+	  var query = {};
+	  if(itemId){
+		query.itemId = itemId;
+	  }
+      collection.find(query).sort({
+		time: -1
+      }).toArray(function (err, rates) {
+        mongodb.close();
+        if (err) {
+          return callback(err);
+        }
+        callback(null, rates);
+      });
+    });
+  });
+};
+
 //====================update an rate information================
 Rate.prototype.update = function(callback) {
 
@@ -101,9 +133,9 @@ Rate.prototype.update = function(callback) {
       }
       //update rate information in the rate set
       collection.update(
-	{"itemName":rate.itemName, "userId":rate.userId},
-	rate,
-	{safe: true
+	{"itemId":rate.itemId, "userId":rate.userId},
+	{$set:{"rating": rate.rating, "time": rate.time}},
+	{safe: true, upsert: true
       }, function (err) {
         mongodb.close();
         if (err) {
