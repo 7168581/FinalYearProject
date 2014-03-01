@@ -11,7 +11,6 @@ module.exports = function(app) {
 		if(err){
 		items = [];
 	}
-//	console.log(req.session.user);
     res.render('index', { 
 	title: 'HomePage',
 	user: req.session.user,
@@ -379,37 +378,82 @@ app.get('/delete-user/:userName/:userId', function (req, res) {
 
 //==========================AJAX to MongoDB=======================================
 app.post('/add-rate', function(req, res){
-
 	var itemId = req.body.itemId,
 		userId = req.session.user.userId,
-		rating = req.body.rating;
-		
-	Rate.get(itemId, userId,function(err, rate){
-    if (err) {
-      req.flash('error', err); 
-    }
+		rating = req.body.rating,
+		itemId = new ObjectId(itemId),
+		length = 1,
+		rate = 0;
+	
 	var newRate = new Rate({
 		itemId: itemId,
 		userId: userId,
 		rating: rating
 	});
-	if (!rate) {
-	newRate.save(function(err){
-		if(err){
-			req.flash('error',err);
-		}
-		req.flash('success','Successfully added a new item');
-	});
-	}else{
-//in the database
+//store value of rating to database
+	console.log("before");
 	newRate.update(function(err){
 		if(err){
 			req.flash('error',err);
 		}
-		req.flash('success','Successfully added a new item');
-	});
+		console.log("finish rating, successfully updated");
+//get average value of a selected item and update to database.
+	Rate.getItemRate(itemId, function(err, rates){
+	if(err){
+		req.flash('error', err);
+		rates = [];
 	}
-	});
+	console.log("length: " + rates.length);
+	length = rates.length;
+	
+	console.log("finish getting an array of values of selected item");
+	
+	Item.edit(itemId, function(err, item){
+		if(err){
+			req.flash('error', err);
+			return res.redirect('back');
+		}
+		if(!item){
+			req.flash('error','Item not exist');
+			return res.redirect('/');
+		}
+		if(length != 0){
+			rate = item.rate;
+			console.log(rate);
+			console.log(rating);
+//			rate = (rate * (length - 1) + rating)/length;
+			rate = rate * (length - 1);
+			console.log(rate);
+			rate = rate + parseInt(rating);
+			console.log(rate);
+			rate = rate/length;
+			console.log(rate);
+			var ratedItem = new Item({
+				itemName: item.itemName,
+				itemId: item.itemId,
+				keyword: item.keyword,
+				category: item.category,
+				description: item.description,
+				userName: item.userName,
+				userId: item.userId,
+				listInfo: item.listInfo,
+				rate: rate
+			});
+			ratedItem.update(function(err,item){
+			if(err){
+				req.flash('error',err);
+				return res.redirect('back');
+			}
+			req.flash('success','Successfully rate it!');
+			console.log("finish calculating and updating");
+			res.redirect('/');
+			});
+		}
+    });
+  });
+});
+	
+console.log("end");
 });
 
 //==========================permission function=======================================
