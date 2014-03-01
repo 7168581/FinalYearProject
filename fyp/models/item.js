@@ -162,8 +162,7 @@ Item.prototype.update = function(callback) {
 	  listInfo: this.listInfo,
 	  rate: this.rate
   };
-  //open database
-//  console.log(item);
+//open database
   mongodb.open(function (err, db) {
     if (err) {
       return callback(err);
