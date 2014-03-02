@@ -31,6 +31,9 @@ $(document).ready(function(){
 	case 'Add item':
 		$("#add_item_page").addClass('active');
 		break;
+	case 'Create List':
+		$("#create_list_page").addClass('active');
+		break;
 	case 'User Management':
 		$("#user_management_page").addClass('active');
 		break;
@@ -55,6 +58,9 @@ $(document).ready(function(){
 				<% if (user.userType == "admin") {%>
 					<li id="add_item_page">
 						<a href="/add-item">Add Item</a>
+					</li>
+					<li id="create_list_page">
+						<a href="/add-list">Create list</a>
 					</li>
 				<% } %>
 				<% if (user.name == "admin") {%>
