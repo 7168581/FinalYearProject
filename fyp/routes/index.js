@@ -11,15 +11,21 @@ module.exports = function(app) {
 		if(err){
 		items = [];
 	}
+	List.getAll(null, function(err,lists){
+		if(err){
+		lists = [];
+	}
     res.render('index', { 
 	title: 'HomePage',
 	user: req.session.user,
 	items: items,
+	lists: lists,
 	success: req.flash('success').toString(),
 	error: req.flash('error').toString()
     });
   });
   });
+ });
 //==========================register=======================================
   app.get('/reg', noLogin);
   app.get('/reg', function (req, res) {
@@ -326,7 +332,7 @@ app.get('/delete-item/:itemId', function (req, res) {
   });
 });
 
-//==========================edit an user=======================================
+//==========================give permission to an user=======================================
 app.get('/permission/:userName', adminLogin);
 app.get('/permission/:userName', function (req, res) {
     User.get(req.params.userName,function(err, user){
@@ -376,6 +382,50 @@ app.get('/delete-user/:userName/:userId', function (req, res) {
   });
 });
 
+//==========================create list=======================================
+  app.get('/add-list', adminLogin);
+  app.get('/add-list', function (req, res) {
+    res.render('add-list', { 
+	title: 'Create List',
+	user: req.session.user,
+	success: req.flash('success').toString(),
+	error: req.flash('error').toString()
+    });
+  });
+  app.post('/add-list', adminLogin);
+  app.post('/add-list', function (req, res) {
+//produce listId
+	var listId = new ObjectId();
+	var itemList = [];
+//new list
+		newList = new List({
+			listName: req.body.listName,
+			listId: listId,
+			userName: req.session.user.name,
+			userId: req.session.user.userId,
+			info: req.body.info,
+			rate: "0",
+			itemList: itemList
+		});
+
+//check if the list exists
+	List.get(newList.listName, function(err, list){
+		if(list){
+			req.flash('error','list already exists');
+			return res.redirect('/add-list');
+		}
+//if not in the database
+		newList.save(function(err){
+			if(err){
+				req.flash('error',err);
+				return res.redirect('/add-list');
+			}
+			req.flash('success','Successfully created a new list');
+			res.redirect('/add-list');
+		});
+	});
+  });
+
 //==========================AJAX to MongoDB=======================================
 app.post('/add-rate', function(req, res){
 	var itemId = req.body.itemId,
@@ -403,10 +453,7 @@ app.post('/add-rate', function(req, res){
 		req.flash('error', err);
 		rates = [];
 	}
-	console.log("length: " + rates.length);
 	length = rates.length;
-	
-	console.log("finish getting an array of values of selected item");
 	
 	Item.edit(itemId, function(err, item){
 		if(err){
@@ -419,14 +466,7 @@ app.post('/add-rate', function(req, res){
 		}
 		if(length != 0){
 			rate = item.rate;
-			console.log(rate);
-			console.log(rating);
-//			rate = (rate * (length - 1) + rating)/length;
-			rate = rate * (length - 1);
-			console.log(rate);
-			rate = rate + parseInt(rating);
-			console.log(rate);
-			rate = rate/length;
+			rate = (rate * (length - 1) + parseInt(rating))/length;
 			console.log(rate);
 			var ratedItem = new Item({
 				itemName: item.itemName,
@@ -445,7 +485,6 @@ app.post('/add-rate', function(req, res){
 				return res.redirect('back');
 			}
 			req.flash('success','Successfully rate it!');
-			console.log("finish calculating and updating");
 			res.redirect('/');
 			});
 		}
