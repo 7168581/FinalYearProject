@@ -1,17 +1,4 @@
 var mongodb = require('./db');
-
-function List(list) {
-  this.listName = list.listName;
-  this.listId = list.listId;
-  this.itemList = list.itemList;
-  this.userName = list.userName;
-  this.userId = list.userId;
-};
-
-module.exports = List;
-
-//============store list information=====================
-List.prototype.save = function(callback) {
 var date = new Date();
 
 var time = {
@@ -22,14 +9,31 @@ var time = {
       minute : date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " + 
       date.getHours() + ":" + (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) 
   }
+  
+function List(list) {
+  this.listName = list.listName;
+  this.listId = list.listId;
+  this.userName = list.userName;
+  this.userId = list.userId;
+  this.itemList = list.itemList;
+  this.rate = list.rate;
+  this.info = list.info;
+};
+
+module.exports = List;
+
+//============store list information=====================
+List.prototype.save = function(callback) {
 
   var list = {
       listName: this.listName,
       listId: this.listId,
-	  time: time,
-      itemList: this.itemList,
 	  userName: this.userName,
-	  userId: this.userId
+	  userId: this.userId,
+      itemList: this.itemList,
+	  rate: this.rate,
+	  info: this.info,
+	  time: time
   };
   //open database
   mongodb.open(function (err, db) {
@@ -56,7 +60,7 @@ var time = {
   });
 };
 
-//==============get list information====================
+//==============get a single list information====================
 List.get = function(listName, callback) {
   //open database
   mongodb.open(function (err, db) {
@@ -83,27 +87,48 @@ List.get = function(listName, callback) {
   });
 };
 
+//====================get all lists======================
+List.getAll = function(userName, callback) {
+  //open database
+  mongodb.open(function (err, db) {
+    if (err) {
+      return callback(err);
+    }
+    //get the collection of lists
+    db.collection('lists', function (err, collection) {
+      if (err) {
+        mongodb.close();
+        return callback(err);
+      }
+      //look for a list of lists created by a user called 'userName'
+	  var query = {};
+	  if(userName){
+		query.userName = userName;
+	  }
+      collection.find(query).sort({
+		time: -1
+      }).toArray(function (err, lists) {
+        mongodb.close();
+        if (err) {
+          return callback(err);
+        }
+        callback(null, lists);
+      });
+    });
+  });
+};
 //=======update list information=============
 List.prototype.update = function(callback) {
-
-var date = new Date();
-
-var time = {
-      date: date,
-      year : date.getFullYear(),
-      month : date.getFullYear() + "-" + (date.getMonth() + 1),
-      day : date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate(),
-      minute : date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " + 
-      date.getHours() + ":" + (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) 
-  }
   
   var list = {
       listName: this.listName,
       listId: this.listId,
-	  time:time,
-      itemList: this.itemList,
 	  userName: this.userName,
-	  userId: this.userId
+	  userId: this.userId,
+      itemList: this.itemList,
+	  rate: this.rate,
+	  info: this.info,
+	  time:time
   };
   //open database
   mongodb.open(function (err, db) {
@@ -127,6 +152,36 @@ var time = {
           return callback(err);
         }
         callback(null, list[0]);
+      });
+    });
+  });
+};
+
+//====================delete an list================
+//delete an list
+List.remove = function(listId, callback) {
+  //open database
+  mongodb.open(function (err, db) {
+    if (err) {
+      return callback(err);
+    }
+    //get lists collection
+    db.collection('lists', function (err, collection) {
+      if (err) {
+        mongodb.close();
+        return callback(err);
+      }
+      //look for an listId called 'listId'
+      collection.remove({
+        "listId": listId
+      }, {
+        w: 1
+      }, function (err) {
+        mongodb.close();
+        if (err) {
+          return callback(err);
+        }
+        callback(null);
       });
     });
   });
