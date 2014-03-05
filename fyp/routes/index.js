@@ -2,7 +2,7 @@ var crypto = require('crypto'),
 	User = require('../models/user.js'),
 	Item = require('../models/item.js'),
 	ObjectId = require('mongodb').ObjectID,
-	List = require('../models/list.js');
+	List = require('../models/list.js'),
 	Rate = require('../models/rate.js');
 
 module.exports = function(app) {
@@ -412,21 +412,46 @@ app.get('/delete-user/:userName/:userId', function (req, res) {
 	List.get(newList.listName, function(err, list){
 		if(list){
 			req.flash('error','list already exists');
-			return res.redirect('/add-list');
-		}
-//if not in the database
-		newList.save(function(err){
-			if(err){
-				req.flash('error',err);
+			if(req.body.webpage == 1){
+				res.send({"status": 1});
+			}else{
 				return res.redirect('/add-list');
 			}
-			req.flash('success','Successfully created a new list');
-			res.redirect('/add-list');
-		});
+		}
+//if not in the database
+		if(!list){
+			newList.save(function(err){
+				if(err){
+					req.flash('error',err);
+					return res.redirect('/add-list');
+				}
+				req.flash('success','Successfully created a new list');
+				if(req.body.webpage == 1){
+					res.send({"status": 2});
+				}else{
+					res.redirect('/add-list');
+				}
+			});
+		}
 	});
   });
 
-//==========================AJAX to MongoDB=======================================
+ //==========================delete an list=======================================
+app.get('/delete-list/:listId', adminLogin);
+app.get('/delete-list/:listId', function (req, res) {
+	  var listId = new ObjectId(req.params.listId);
+	  console.log(listId);
+	List.remove(listId, function (err) {
+    if (err) {
+      req.flash('error', err); 
+      return res.redirect('back');
+    }
+    req.flash('success', 'Delete successfully!');
+    res.redirect('/');
+  });
+});
+
+//==========================add rate AJAX=======================================
 app.post('/add-rate', function(req, res){
 	var itemId = req.body.itemId,
 		userId = req.session.user.userId,
@@ -491,9 +516,9 @@ app.post('/add-rate', function(req, res){
     });
   });
 });
-	
-console.log("end");
 });
+
+//==========================add list AJAX=======================================
 
 //==========================permission function=======================================
   function isLogin(req, res, next){
