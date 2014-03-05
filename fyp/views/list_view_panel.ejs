@@ -59,6 +59,23 @@
 var list_id;
 $(document).ready(function(){
 	$(".panel-collapse").first().collapse('show');
+	
+	$("#create_list_confirm_btn").click(function(){
+	var url = "/add-list",
+		listName = $("#listName").val(),
+		info = $("#info").val();
+		
+	$.post(url,{listName: listName, info: info, webpage: 1},function(data){
+			if(data.status == 1){
+				alert("List already exist");
+			}
+			console.log(data.status);
+			if(data.status == 2){
+				window.location.href="/";
+				//$("#cancel_create").click();
+			}
+	});
+	});
 });
 
 function delete_list_function(listId, listName){
@@ -85,6 +102,7 @@ $('#accordion .rateit').bind('rated', function(event, value) {
 });
 
 $("#accordion .rateit").bind('over', function (event,value) { $(this).attr('title', value); });
+
 </script>
 			</div>
 		</div>
@@ -110,7 +128,7 @@ $("#accordion .rateit").bind('over', function (event,value) { $(this).attr('titl
 							<label class="control-label" for="itemName">List name</label>
 						</div>
 						<div class="col-md-8">
-							<input type="text" class="form-control" id="listName" name="listName" autofocus="autofocus" required="required" maxlength="25" placeholder="List name">
+							<input type="text" class="form-control" id="listName" autofocus="autofocus" required="required" maxlength="25" placeholder="List name">
 						</div>
 					</div>
 				</div>
@@ -126,8 +144,8 @@ $("#accordion .rateit").bind('over', function (event,value) { $(this).attr('titl
 				</div>
 			</div>
 			<div class="modal-footer">
-				<a class="btn" data-dismiss="modal">Cancel</a>
-				<a class="btn btn-primary" name="delete-btn" id="create_list_confirm_btn">Create!</a>
+				<a class="btn" data-dismiss="modal" id="cancel_create">Cancel</a>
+				<a class="btn btn-primary" id="create_list_confirm_btn">Create!</a>
 			</div>
 		</div>
 	</div>
