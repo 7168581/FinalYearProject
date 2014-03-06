@@ -453,10 +453,9 @@ app.get('/delete-list/:listId', function (req, res) {
 
 //==========================add rate AJAX=======================================
 app.post('/add-rate', function(req, res){
-	var itemId = req.body.itemId,
-		userId = req.session.user.userId,
+	var userId = req.session.user.userId,
 		rating = req.body.rating,
-		itemId = new ObjectId(itemId),
+		itemId = new ObjectId(req.body.itemId),
 		length = 1,
 		rate = 0;
 	
@@ -466,7 +465,6 @@ app.post('/add-rate', function(req, res){
 		rating: rating
 	});
 //store value of rating to database
-	console.log("before");
 	newRate.update(function(err){
 		if(err){
 			req.flash('error',err);
@@ -519,7 +517,35 @@ app.post('/add-rate', function(req, res){
 });
 
 //==========================add list AJAX=======================================
-
+app.post('/add-to-list', function(req, res){
+	var listName = req.body.listName,
+		listId = req.body.listId,
+		userName = req.session.user.userName,
+		userId = req.session.user.userId,
+		itemList = req.body.itemList,
+		rate = req.body.rate,
+		itemId = new ObjectId(req.body.itemId),
+		info = req.body.info;
+	
+	var newAddedList = new List({
+      listName: listName,
+      listId: listId,
+	  userName: userName,
+	  userId: userId,
+      itemList: itemList,
+	  rate: rate,
+	  info: info,
+	});
+//store an itemId to a selected list
+	newAddedList.addToList(itemId, function(err){
+		if(err){
+			req.flash('error',err);
+			return res.redirect('back');
+		}
+		req.flash('success','added successfully');
+		res.redirect('/');
+		});
+});
 //==========================permission function=======================================
   function isLogin(req, res, next){
 	if(!req.session.user) {
