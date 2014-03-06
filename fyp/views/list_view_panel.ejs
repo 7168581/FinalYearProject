@@ -11,9 +11,9 @@
 							</a>
 							<% if (user.userType == "admin") { %>
 								<div class="pull-right">
-									<a class="view" href="#">View</a>
-									<a class="edit" href="/edit-list/<%= list.listId %>">Edit</a>
-									<a class="delete" href="#delete_list_modal" data-toggle="modal" onclick="delete_list_function('<%= list.listId %>', '<%= list.listName %>')" id="delete_list">Delete</a>
+									<a class="btn btn-success btn-xs" href="#">View</a>
+									<a class="btn btn-info btn-xs" href="/edit-list/<%= list.listId %>">Edit</a>
+									<a class="btn btn-danger btn-xs" href="#delete_list_modal" data-toggle="modal" onclick="delete_list_function('<%= list.listId %>', '<%= list.listName %>')" id="delete_list">Delete</a>
 								</div>
 							<% } %>
 						</h3>
@@ -87,21 +87,6 @@ $("#delete_list_confirm_btn").click(function(){
 	var url = "/delete-list/" + list_id;
 	window.location.href=url;
 });
-
-$('#accordion .rateit').bind('rated', function(event, value) {
-	var ri = $(this);
-	var rate_value = value;
-	var rated_itemId = ri.data('id');
-	
-	var url_1 = "/add-rate";
-/***
-	$.post(url_1,{rating: rate_value, itemId: rated_itemId},function(){
-			console.log('value saved as' + value);
-	});
-***/
-});
-
-$("#accordion .rateit").bind('over', function (event,value) { $(this).attr('title', value); });
 
 </script>
 			</div>
