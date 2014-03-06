@@ -10,11 +10,13 @@
 						</a>
 						<% if (user.userType == "admin") { %>
 							<div class="pull-right">
+								<a class="add_to_list_modal" href="#add_to_list_modal" data-toggle="modal">Add to</a>
 								<a class="edit" href="/edit-item/<%= item.itemId %>">Edit</a>
 								<a class="delete" href="#delete-modal" data-toggle="modal" onclick="delete_function('<%= item.itemId %>', '<%= item.itemName %>')" id="delete_item">Delete</a>
 							</div>
 						<% } %>
 					</h3>
+<!--This is delete_item modal-->
 					<div class="modal fade" id="delete-modal" tabindex="-1" role="dialog" aria-labelledby="deleteLabel" aria-hidden="true">
 						<div class="modal-dialog">
 							<div class="modal-content">
@@ -32,6 +34,32 @@
 							</div>
 						</div>
 					</div>
+<!--This is add_to_list modal-->
+					<div class="modal fade" id="add_to_list_modal" tabindex="-1" role="dialog" aria-labelledby="deleteLabel" aria-hidden="true">
+						<div class="modal-dialog">
+							<div class="modal-content">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+									<h3>Please select a list you want to add "<%= item.itemName %>" in</h3>
+								</div>
+								<div class="modal-body">
+									<div>
+										<% lists.forEach(function (list, index) { %>
+											  <a href="#" class="list-group-item">
+												<h4 class="list-group-item-heading"><%= list.listName %></h4>
+												<span class="badge"><%= list.itemList.length %></span>
+												<p class="list-group-item-text"><%= list.info %></p>
+											  </a>
+										<% }) %>
+									</div>
+								</div>
+								<div class="modal-footer">
+									<a class="btn" data-dismiss="modal">Cancel</a>
+								</div>
+							</div>
+						</div>
+					</div>
+					
 				</div>
 				<div class="panel-collapse collapse" id="panel_<%= item.itemId %>">
 					<div class="panel-body">
