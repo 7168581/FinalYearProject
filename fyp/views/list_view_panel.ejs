@@ -1,17 +1,17 @@
 <% if (user.userType == "admin") { %>
 	<div class="col-md-3 col-md-offset-1">
 		<div class="scroll-area" data-spy="scroll" data-target=".scroll-area" data-offset="0">
-			<div class="panel-group" id="accordion">
+			<div class="panel-group" id="list_accordion">
 			<% lists.forEach(function (list, index) { %>
 				<div class="panel panel-default">
 					<div class="panel-heading">
 						<h3 class="panel-title">
-							<a href="#panel_<%= list.listId %>" data-toggle="collapse" data-parent="#accordion">
+							<a href="#panel_<%= list.listId %>" data-toggle="collapse" data-parent="#list_accordion">
 								<%= list.listName %>
 							</a>
 							<% if (user.userType == "admin") { %>
 								<div class="pull-right">
-									<a class="btn btn-success btn-xs" href="#">View</a>
+									<a class="btn btn-success btn-xs" id="view_items" onclick="view_items_function('<%= list.listId %>')">View</a>
 									<a class="btn btn-info btn-xs" href="/edit-list/<%= list.listId %>">Edit</a>
 									<a class="btn btn-danger btn-xs" href="#delete_list_modal" data-toggle="modal" onclick="delete_list_function('<%= list.listId %>', '<%= list.listName %>')" id="delete_list">Delete</a>
 								</div>
@@ -77,6 +77,14 @@ $(document).ready(function(){
 	});
 	});
 });
+
+function view_items_function(listId){
+	var url = "/view-list/" + listId;
+	console.log(listId);
+	$.get(url, function(){
+			console.log(listId + " has shown on the left");
+	});
+};
 
 function delete_list_function(listId, listName){
 	list_id = listId;
