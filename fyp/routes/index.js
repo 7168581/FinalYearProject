@@ -7,24 +7,14 @@ var crypto = require('crypto'),
 
 module.exports = function(app) {
   app.get('/', function (req, res) {
-	Item.getAll(null, function(err,items){
-		if(err){
-		items = [];
-	}
-	List.getAll(null, function(err,lists){
-		if(err){
-		lists = [];
-	}
-    res.render('index', { 
+    res.render('index', {
 	title: 'HomePage',
 	user: req.session.user,
-	items: items,
-	lists: lists,
+	items: req.session.items,
+	lists: req.session.lists,
 	success: req.flash('success').toString(),
 	error: req.flash('error').toString()
     });
-  });
-  });
  });
 //==========================register=======================================
   app.get('/reg', noLogin);
@@ -105,10 +95,22 @@ module.exports = function(app) {
 		req.flash('error', 'Wrong password'); 
 		return res.redirect('/login');
 	}
-    
+	
+	Item.getAll(null, null, function(err,items){
+		if(err){
+		items = [];
+	}
+	List.getAll(null, function(err,lists){
+		if(err){
+		lists = [];
+	}
+	req.session.items = items;
+	req.session.lists = lists;
 	req.session.user = user;
 	req.flash('success', 'Login successfully');
 	res.redirect('/');
+	});
+	});
 	});
 });
 
@@ -116,6 +118,8 @@ module.exports = function(app) {
   app.get('/logout', isLogin);
   app.get('/logout', function (req, res) {
 	req.session.user = null;
+	req.session.items = [];
+	req.session.lists = [];
 	req.flash('success', 'Logout successfully');
 	res.redirect('/');
   });
@@ -188,6 +192,7 @@ module.exports = function(app) {
   app.post('/add-item', function (req, res) {
 //produce itemId
 	var itemId = new ObjectId();
+	var listInfo = new Array();
 //new item
 	var	keyword = [req.body.keyword_1,req.body.keyword_2,req.body.keyword_3,req.body.keyword_4],
 		newItem = new Item({
@@ -198,7 +203,7 @@ module.exports = function(app) {
 			description: req.body.description,
 			userName: req.session.user.name,
 			userId: req.session.user.userId,
-			listInfo: "null",
+			listInfo: listInfo,
 			rate: "0"
 		});
 
@@ -214,12 +219,18 @@ module.exports = function(app) {
 				req.flash('error',err);
 				return res.redirect('/add-item');
 			}
+			Item.getAll(null, null, function(err,items){
+				if(err){
+				items = [];
+			}
+			req.session.items = items;
 			req.flash('success','Successfully added a new item');
 			res.redirect('/add-item');
 		});
 	});
   });
-
+});
+  
 //==========================user management=======================================
   app.get('/user-management', function (req, res) {
   
@@ -305,16 +316,21 @@ module.exports = function(app) {
 			listInfo: item.listInfo,
 			rate: item.rate
 		});
-//		console.log(editItem);
-		editItem.update(function(err,item){
+		editItem.update(function(err){
 			if(err){
 				req.flash('error',err);
 				return res.redirect('back');
 			}
+			Item.getAll(null, null, function(err,items){
+				if(err){
+				items = [];
+			}
+			req.session.items = items;
 			req.flash('success','Successfully Edit!');
 			res.redirect('/');
 		});
 	});
+  });
   });
 
 //==========================delete an item=======================================
@@ -327,8 +343,14 @@ app.get('/delete-item/:itemId', function (req, res) {
       req.flash('error', err); 
       return res.redirect('back');
     }
+	Item.getAll(null, null, function(err,items){
+		if(err){
+		items = [];
+	}
+	req.session.items = items;
     req.flash('success', 'Delete successfully!');
     res.redirect('/');
+  });
   });
 });
 
@@ -426,15 +448,21 @@ app.get('/delete-user/:userName/:userId', function (req, res) {
 					return res.redirect('/add-list');
 				}
 				req.flash('success','Successfully created a new list');
+				List.getAll(null, function(err,lists){
+					if(err){
+					lists = [];
+				}
+				req.session.lists = lists;
 				if(req.body.webpage == 1){
 					res.send({"status": 2});
 				}else{
 					res.redirect('/add-list');
 				}
 			});
+		});
 		}
-	});
   });
+});
 
  //==========================delete an list=======================================
 app.get('/delete-list/:listId', adminLogin);
@@ -446,8 +474,14 @@ app.get('/delete-list/:listId', function (req, res) {
       req.flash('error', err); 
       return res.redirect('back');
     }
+	List.getAll(null, function(err,lists){
+		if(err){
+			lists = [];
+		}
+	req.session.lists = lists;
     req.flash('success', 'Delete successfully!');
     res.redirect('/');
+  });
   });
 });
 
@@ -502,7 +536,7 @@ app.post('/add-rate', function(req, res){
 				listInfo: item.listInfo,
 				rate: rate
 			});
-			ratedItem.update(function(err,item){
+			ratedItem.update(function(err){
 			if(err){
 				req.flash('error',err);
 				return res.redirect('back');
@@ -524,7 +558,7 @@ app.post('/add-to-list', function(req, res){
 		userId = req.session.user.userId,
 		itemList = req.body.itemList,
 		rate = req.body.rate,
-		itemId = new ObjectId(req.body.itemId),
+		itemId = req.body.itemId,
 		info = req.body.info;
 	
 	var newAddedList = new List({
@@ -542,9 +576,51 @@ app.post('/add-to-list', function(req, res){
 			req.flash('error',err);
 			return res.redirect('back');
 		}
+		itemId = new ObjectId(itemId);
+		Item.edit(itemId, function(err, item){
+		if(err){
+			req.flash('error', err);
+			return res.redirect('back');
+		}
+			var listInfo = item.listInfo;
+			listInfo.push(listId);
+			var newAddedItem = new Item({
+				itemName: item.itemName,
+				itemId: item.itemId,
+				keyword: item.keyword,
+				category: item.category,
+				description: item.description,
+				userName: item.userName,
+				userId: item.userId,
+				listInfo: listInfo,
+				rate: item.rate
+			});
+				newAddedItem.update(function(err){
+				if(err){
+					req.flash('error',err);
+					return res.redirect('back');
+				}
 		req.flash('success','added successfully');
 		res.redirect('/');
 		});
+		});
+	});
+});
+
+//==========================view list AJAX=======================================
+app.get('/view-list/:listId', function(req, res){
+	var listId = req.params.listId;
+	
+//store an itemId to a selected list
+	Item.getAll(null, listId, function(err,items){
+		if(err){
+			items = [];
+		}
+	req.session.items = items;
+
+	req.flash('success','selected list loading successfully');
+	res.redirect('/');
+	});
 });
 //==========================permission function=======================================
   function isLogin(req, res, next){
