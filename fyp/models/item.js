@@ -117,7 +117,7 @@ Item.edit = function(itemId, callback) {
   });
 };
 //====================get all items======================
-Item.getAll = function(userName, callback) {
+Item.getAll = function(userName, listId, callback) {
   //open database
   mongodb.open(function (err, db) {
     if (err) {
@@ -133,6 +133,9 @@ Item.getAll = function(userName, callback) {
 	  var query = {};
 	  if(userName){
 		query.userName = userName;
+	  }
+	  if(listId){
+		query.listInfo = listId;
 	  }
       collection.find(query).sort({
 		time: -1
