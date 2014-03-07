@@ -61,7 +61,7 @@ List.prototype.save = function(callback) {
 };
 
 //==============get a single list information====================
-List.get = function(listName, callback) {
+List.get = function(listId, callback) {
   //open database
   mongodb.open(function (err, db) {
     if (err) {
@@ -73,9 +73,9 @@ List.get = function(listName, callback) {
         mongodb.close();
         return callback(err);
       }
-      //look for a list called 'listName'
+      //look for a list which its listId is 'listId'
       collection.findOne({
-        listName: listName
+        listId: listId
       }, function (err, list) {
         mongodb.close();
         if (err) {
