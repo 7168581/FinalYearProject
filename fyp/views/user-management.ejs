@@ -5,7 +5,7 @@
 	<legend><h1><%= title %></h1></legend>
 	<div class="col-md-8 col-md-offset-2">
 		<div class="scroll-area" data-spy="scroll" data-offset="0">
-			<table class="table table-hover table-bordered">
+			<table class="table table-hover table-bordered table-striped">
 				<% users.forEach(function (user, index) { %>
 					<tr>
 						<td>
@@ -25,7 +25,8 @@
 								<% if(user.name != "admin") { %>
 									<div class="pull-right">
 										<input type="checkbox">
-										<a class="edit" href="/permission/<%= user.name %>">Edit</a>
+										<a class="edit" href="/permission/<%= user.name %>">Give permission</a>
+										<a class="edit" href="#edit_user_modal" data-toggle="modal" onclick="edit_user_function('<%= user.userId %>', '<%= user.name %>', '<%= user.userType %>', '<%= user.email %>')">Edit</a>
 									<a class="delete" href="#delete_user_modal" data-toggle="modal" onclick="delete_user_function('<%= user.userId %>', '<%= user.name %>')">Delete</a>
 									</div>
 								<% } %>
@@ -39,7 +40,7 @@
 	</div>
 </fieldset>
 </form>
-
+<!--This is delete_user modal-->
 <div class="modal fade" id="delete_user_modal" tabindex="-1" role="dialog" aria-labelledby="deleteLabel" aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
@@ -58,14 +59,82 @@
 	</div>
 </div>
 
+<!--This is edit_user modal-->
+<div class="modal fade" id="edit_user_modal" tabindex="-1" role="dialog" aria-labelledby="deleteLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h3 id="edit_user_modal_h3">Edit a user</h3>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<div class="row">
+						<div class="col-md-3">
+							<label class="control-label" for="username">Username</label>
+						</div>
+						<div class="col-md-8">
+							<div class="input-group">
+								<input type="text" class="form-control" id="edit_userName" autofocus="autofocus" required="required" maxlength="25">
+								<span class="input-group-btn">
+									<button type="button" class="btn btn-default" data-toggle="tooltip" data-placement="right" title="Please use number or letter to form an username, no special symbol is supported.">!</button>
+								</span>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="row">
+						<div class="col-md-3">
+							<label class="control-label" for="email">Email</label>
+						</div>
+						<div class="col-md-8">
+							<input type="email" class="form-control" id="edit_email" required="required">
+						</div>
+					</div>
+				</div>
+				<div class="col-md-8">
+					<select class="form-control" id="edit_userType" data-style="btn-success">
+						<option>user</option>
+						<option>admin</option>
+					</select>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<a class="btn" data-dismiss="modal">Cancel</a>
+				<a class="btn btn-primary" id="edit_user_confirm_btn">Submit!</a>
+			</div>
+		</div>
+	</div>
+</div>
+
 
 <script>
 var user_id;
 var user_name;
+var user_email;
+var user_type;
 $(document).ready(function(){
 	$("#delete_confirm_btn").click(function(){
 		var url = "/delete-user/" + user_name + "/" + user_id;
 		window.location.href=url;
+	});
+	
+	$("#edit_user_confirm_btn").click(function(){
+		var url = "/edit-user";
+		user_name = $("#edit_userName").val();
+		user_email = $("#edit_email").val();
+		user_type = $("#edit_userType").val();
+		console.log("panel --> listName " + user_name);
+		$.post(url,
+				{name: user_name, 
+				userId: user_id, 
+				email: user_email, 
+				userType: user_type, 
+				webpage: 1},
+			function(data){
+			window.location.href="/user-management";
+		});
 	});
 });
 
@@ -73,6 +142,18 @@ function delete_user_function(userId, userName){
 	user_id = userId;
 	user_name = userName;
 	$("#modalP").text("Are you sure you want to delete \"" + userName + "\"?");
+}
+
+function edit_user_function(userId, name, userType, email){
+	user_name = name;
+	user_id = userId;
+	user_type = userType;
+	user_email = email;
+	console.log(userId);
+	$("#edit_user_modal_h3").text("Edit \"" + name + "\"");
+	$("#edit_userName").val(user_name);
+	$("#edit_email").val(email);
+	$("#edit_userType").val(userType);
 }
 </script>
 
