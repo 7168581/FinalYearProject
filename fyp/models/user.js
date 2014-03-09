@@ -102,15 +102,8 @@ User.getAll = function(name, callback) {
   });
 };
 
-//====================update a single item information================
-User.prototype.update = function(callback) {
-  var user = {
-      name: this.name,
-	  userId: this.userId,
-      password: this.password,
-      email: this.email,
-	  userType: this.userType
-  };
+//====================update a single user information================
+User.prototype.update = function(name,userId,password,email,userType,callback) {
   //open database
   mongodb.open(function (err, db) {
     if (err) {
@@ -123,9 +116,23 @@ User.prototype.update = function(callback) {
         return callback(err);
       }
       //update user information in the user set
+	  var query = {};
+	  if(name){
+		query.name = name;
+	  }
+	  if(password){
+		query.password = password;
+	  }
+	  if(email){
+		query.email = email;
+	  }
+	  if(userType){
+		query.userType = userType;
+	  }
+	  console.log(query);
       collection.update(
-	{"name":user.name},
-	user,
+	{"userId": userId},
+	{"$set": query},
 	{safe: true
       }, function (err) {
         mongodb.close();
