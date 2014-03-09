@@ -1,5 +1,8 @@
 <% if (user.userType == "admin") { %>
 	<div class="col-md-3 col-md-offset-1">
+	<div class="center-block">
+		<h3 class="text-primary">Lists<h3>
+	</div>
 		<div class="scroll-area" data-spy="scroll" data-target=".scroll-area" data-offset="0">
 			<div class="panel-group" id="list_accordion">
 			<% lists.forEach(function (list, index) { %>
@@ -11,12 +14,13 @@
 							</a>
 							<% if (user.userType == "admin") { %>
 								<div class="pull-right">
-									<a class="btn btn-success btn-xs" id="view_items" onclick="view_items_function('<%= list.listId %>')">View</a>
-									<a class="btn btn-info btn-xs" href="/edit-list/<%= list.listId %>">Edit</a>
+									<a class="btn btn-primary btn-xs" href="/view-list/<%= list.listId %>">View</a>
+									<a class="btn btn-info btn-xs" href="#edit_list_modal" data-toggle="modal" onclick="edit_list_function('<%= list.listName %>', '<%= list.info %>')">Edit</a>
 									<a class="btn btn-danger btn-xs" href="#delete_list_modal" data-toggle="modal" onclick="delete_list_function('<%= list.listId %>', '<%= list.listName %>')" id="delete_list">Delete</a>
 								</div>
 							<% } %>
 						</h3>
+<!--This is delete_list modal-->
 						<div class="modal fade" id="delete_list_modal" tabindex="-1" role="dialog" aria-labelledby="deleteLabel" aria-hidden="true">
 							<div class="modal-dialog">
 								<div class="modal-content">
@@ -57,13 +61,16 @@
 			<% }) %>
 <script>
 var list_id;
+var list_name;
+var list_info;
+
 $(document).ready(function(){
 	$(".panel-collapse").first().collapse('show');
 	
 	$("#create_list_confirm_btn").click(function(){
 	var url = "/add-list",
-		listName = $("#listName").val(),
-		info = $("#info").val();
+		listName = $("#create_listName").val(),
+		info = $("#create_info").val();
 		
 	$.post(url,{listName: listName, info: info, webpage: 1},function(data){
 			if(data.status == 1){
@@ -76,8 +83,20 @@ $(document).ready(function(){
 			}
 	});
 	});
+	
+	$("#edit_list_confirm_btn").click(function(){
+	var url = "/edit-list";
+	list_info = $("#edit_info").val();
+	console.log("panel --> listName " + list_name);
+	console.log("panel --> info " + list_info);
+	$.post(url,{listName: list_name, info: list_info, webpage: 1},function(data){
+		console.log("updated");
+		window.location.href="/";
+	});
+});
 });
 
+/***
 function view_items_function(listId){
 	var url = "/view-list/" + listId;
 	console.log(listId);
@@ -85,6 +104,14 @@ function view_items_function(listId){
 			console.log(listId + " has shown on the left");
 	});
 };
+***/ 
+
+function edit_list_function(listName, info){
+	list_name = listName;
+	$("#edit_list_modal_h3").text("Edit \"" + listName + "\"");
+	$("#edit_listName").val(listName);
+	$("#edit_info").val(info);
+}
 
 function delete_list_function(listId, listName){
 	list_id = listId;
@@ -106,6 +133,8 @@ $("#delete_list_confirm_btn").click(function(){
 			</ul>
 		</div>
 	</div>
+
+<!--This is create_item modal-->
 	
 <div class="modal fade" id="create_list_modal" tabindex="-1" role="dialog" aria-labelledby="deleteLabel" aria-hidden="true">
 	<div class="modal-dialog">
@@ -121,7 +150,7 @@ $("#delete_list_confirm_btn").click(function(){
 							<label class="control-label" for="itemName">List name</label>
 						</div>
 						<div class="col-md-8">
-							<input type="text" class="form-control" id="listName" autofocus="autofocus" required="required" maxlength="25" placeholder="List name">
+							<input type="text" class="form-control" id="create_listName" autofocus="autofocus" required="required" maxlength="25" placeholder="List name">
 						</div>
 					</div>
 				</div>
@@ -131,7 +160,7 @@ $("#delete_list_confirm_btn").click(function(){
 							<label class="control-label" for="info">List Information</label>
 						</div>
 						<div class="col-md-8">
-							<textarea class="form-control" id="info" name="info" row="8" placeholder="Some info here"></textarea>
+							<textarea class="form-control" id="create_info" name="info" row="8" placeholder="Some info here"></textarea>
 						</div>
 					</div>
 				</div>
@@ -139,6 +168,45 @@ $("#delete_list_confirm_btn").click(function(){
 			<div class="modal-footer">
 				<a class="btn" data-dismiss="modal" id="cancel_create">Cancel</a>
 				<a class="btn btn-primary" id="create_list_confirm_btn">Create!</a>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!--This is edit_item modal-->
+
+<div class="modal fade" id="edit_list_modal" tabindex="-1" role="dialog" aria-labelledby="deleteLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h3 id="edit_list_modal_h3">Edit a list</h3>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<div class="row">
+						<div class="col-md-3">
+							<label class="control-label" for="itemName">List name</label>
+						</div>
+						<div class="col-md-8">
+							<input type="text" class="form-control" id="edit_listName" autofocus="autofocus" required="required" maxlength="25" placeholder="List name"  disabled="disabled">
+						</div>
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="row">
+						<div class="col-md-3">
+							<label class="control-label" for="info">List Information</label>
+						</div>
+						<div class="col-md-8">
+							<textarea class="form-control" id="edit_info" name="info" row="8"></textarea>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<a class="btn" data-dismiss="modal" id="cancel_create">Cancel</a>
+				<a class="btn btn-primary" id="edit_list_confirm_btn">Submit!</a>
 			</div>
 		</div>
 	</div>
