@@ -118,18 +118,8 @@ List.getAll = function(userName, callback) {
   });
 };
 //=======update list information=============
-List.prototype.update = function(callback) {
-  
-  var list = {
-      listName: this.listName,
-      listId: this.listId,
-	  userName: this.userName,
-	  userId: this.userId,
-      itemList: this.itemList,
-	  rate: this.rate,
-	  info: this.info,
-	  time:time
-  };
+List.prototype.update = function(listName, info, itemList, callback) {
+	console.log(info);
   //open database
   mongodb.open(function (err, db) {
     if (err) {
@@ -142,9 +132,16 @@ List.prototype.update = function(callback) {
         return callback(err);
       }
       //update list information in the list set
-      collection.update(
-	{"listName":list.listName},
-	list,
+      var query = {};
+	  if(info){
+		query.info = info;
+	  }
+	  if(itemList){
+		query.itemList = itemList;
+	  }
+	  collection.update(
+	{"listName": listName},
+	{"$set": query},
 	{safe: true
       }, function (err, list) {
         mongodb.close();
