@@ -1,4 +1,7 @@
 <div class="col-md-6 col-md-offset-1">
+<div class="center-block text-primary">
+	<h3><%= listName %><h3>
+</div>
 	<div class="scroll-area" data-spy="scroll" data-offset="0">
 		<div class="panel-group" id="accordion">
 		<% items.forEach(function (item, index) { %>
@@ -69,7 +72,7 @@
 							<strong>User name:</strong> <a href="#"><%= item.userName %></a> | <strong>User id:</strong> <%= item.userId %>
 						</p>
 						<p class="text-muted">
-							<strong>Rate: <div class="rateit"  id="rateit1" data-rateit-value="<%= item.rate %>" data-rateit-ispreset="true" data-rateit-readonly="true"></div></strong>
+							<strong>Rate: <div class="rateit" data-rateit-value="<%= item.rate %>" data-rateit-ispreset="true" data-rateit-readonly="true"></div></strong>
 							| <span class="rateit" id="rateit2" data-id="<%= item.itemId %>"></span> 
 						</p>
 						<p><strong>Description:</strong></p>
@@ -100,7 +103,7 @@ $('#accordion .rateit').bind('rated', function(event, value) {
 	var rated_itemId = ri.data('id');
 	
 	var url_1 = "/add-rate";
-	$.post(url_1,{rating: rate_value, itemId: rated_itemId},function(){
+	$.post(url_1,{rating: rate_value, itemId: rated_itemId},function(data){
 			console.log('value saved as' + value);
 	});
 });
@@ -113,6 +116,9 @@ function add_to_list_function(itemId){
 
 function select_list_function(listName, listId, itemList, rate, info){
 	var url = "/add-to-list";
+	console.log(JSON.stringify(itemList));
+	console.log(itemList);
+	console.log(item_id);
 	$.post(url,{
 				listName: listName,
 				listId: listId,
