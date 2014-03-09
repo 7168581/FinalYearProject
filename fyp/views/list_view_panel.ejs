@@ -13,10 +13,13 @@
 								<%= list.listName %>
 							</a>
 							<% if (user.userType == "admin") { %>
-								<div class="pull-right">
-									<a class="btn btn-primary btn-xs" href="/view-list/<%= list.listId %>">View</a>
-									<a class="btn btn-info btn-xs" href="#edit_list_modal" data-toggle="modal" onclick="edit_list_function('<%= list.listName %>', '<%= list.info %>')">Edit</a>
-									<a class="btn btn-danger btn-xs" href="#delete_list_modal" data-toggle="modal" onclick="delete_list_function('<%= list.listId %>', '<%= list.listName %>')" id="delete_list">Delete</a>
+								<div class="pull-right btn-group">
+									<button type="button" class="btn btn-danger dropdown-toggle btn-xs" data-toggle="dropdown">Action<span class="caret"></span></button>
+									<ul class="dropdown-menu" role="menu">
+										<li><a href="/view-list/<%= list.listId %>">View</a></li>
+										<li><a href="#edit_list_modal" data-toggle="modal" onclick="edit_list_function('<%= list.listName %>', '<%= list.info %>')">Edit</a></li>
+										<li><a href="#delete_list_modal" data-toggle="modal" onclick="delete_list_function('<%= list.listId %>', '<%= list.listName %>')" id="delete_list">Delete</a></li>
+									</ul>
 								</div>
 							<% } %>
 						</h3>
@@ -65,7 +68,7 @@ var list_name;
 var list_info;
 
 $(document).ready(function(){
-	$(".panel-collapse").first().collapse('show');
+	$("#list_accordion .panel-collapse").first().collapse('show');
 	
 	$("#create_list_confirm_btn").click(function(){
 	var url = "/add-list",
@@ -123,6 +126,7 @@ $("#delete_list_confirm_btn").click(function(){
 	window.location.href=url;
 });
 
+$("#list_accordion .rateit").bind('over', function (event,value) { $(this).attr('title', value); });
 </script>
 			</div>
 		</div>

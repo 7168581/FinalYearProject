@@ -3,19 +3,22 @@
 	<h3><%= listName %><h3>
 </div>
 	<div class="scroll-area" data-spy="scroll" data-offset="0">
-		<div class="panel-group" id="accordion">
+		<div class="panel-group" id="item_accordion">
 		<% items.forEach(function (item, index) { %>
 			<div class="panel panel-default">
 				<div class="panel-heading">
 					<h3 class="panel-title">
-						<a href="#panel_<%= item.itemId %>" data-toggle="collapse" data-parent="#accordion">
+						<a href="#panel_<%= item.itemId %>" data-toggle="collapse" data-parent="#item_accordion">
 							<%= item.itemName %>
 						</a>
 						<% if (user.userType == "admin") { %>
-							<div class="pull-right">
-								<a class="btn btn-success btn-xs" href="#add_to_list_modal" data-toggle="modal" onclick="add_to_list_function('<%= item.itemId %>')">Add to</a>
-								<a class="btn btn-info btn-xs" href="/edit-item/<%= item.itemId %>">Edit</a>
-								<a class="btn btn-danger btn-xs" href="#delete-modal" data-toggle="modal" onclick="delete_function('<%= item.itemId %>', '<%= item.itemName %>')" id="delete_item">Delete</a>
+							<div class="pull-right btn-group">
+								<button type="button" class="btn btn-primary dropdown-toggle btn-xs" data-toggle="dropdown">Action<span class="caret"></span></button>
+								<ul class="dropdown-menu" role="menu">
+									<li><a href="#add_to_list_modal" data-toggle="modal" onclick="add_to_list_function('<%= item.itemId %>')">Add to</a></li>
+									<li><a href="/edit-item/<%= item.itemId %>">Edit</a></li>
+									<li><a href="#delete-modal" data-toggle="modal" onclick="delete_function('<%= item.itemId %>', '<%= item.itemName %>')" id="delete_item">Delete</a></li>
+								</ul>
 							</div>
 						<% } %>
 					</h3>
@@ -84,7 +87,7 @@
 <script>
 var item_id;
 $(document).ready(function(){
-	$(".panel-collapse").first().collapse('show');
+	$("#item_accordion .panel-collapse").first().collapse('show');
 });
 
 function delete_function(itemId, itemName){
@@ -97,7 +100,7 @@ $("#delete_confirm_btn").click(function(){
 	window.location.href=url;
 });
 
-$('#accordion .rateit').bind('rated', function(event, value) {
+$('#item_accordion .rateit').bind('rated', function(event, value) {
 	var ri = $(this);
 	var rate_value = value;
 	var rated_itemId = ri.data('id');
@@ -108,7 +111,7 @@ $('#accordion .rateit').bind('rated', function(event, value) {
 	});
 });
 
-$("#accordion .rateit").bind('over', function (event,value) { $(this).attr('title', value); });
+$("#item_accordion .rateit").bind('over', function (event,value) { $(this).attr('title', value); });
 
 function add_to_list_function(itemId){
 	item_id = itemId;
