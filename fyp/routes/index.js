@@ -12,10 +12,25 @@ module.exports = function(app) {
 	user: req.session.user,
 	items: req.session.items,
 	lists: req.session.lists,
+	listName: req.session.listName,
 	success: req.flash('success').toString(),
 	error: req.flash('error').toString()
     });
  });
+ 
+//==========================show all items=======================================
+app.get('/all-items', function(req, res){
+//show all items to the homepage
+	Item.getAll(null, null, function(err,items){
+		if(err){
+			items = [];
+		}
+	req.session.items = items;
+	req.session.listName = "All items";
+	res.redirect('/');
+	});
+});
+ 
 //==========================register=======================================
   app.get('/reg', noLogin);
   app.get('/reg', function (req, res) {
@@ -32,7 +47,6 @@ module.exports = function(app) {
 //check if two passwords match.
 	if(req.body.password != req.body.reEnterPassword){
 		req.flash('error', 'Two passwords do not match');
-		console.log('Two passwords do not match');
 		return res.redirect('/reg');
 	}
 
@@ -52,7 +66,6 @@ module.exports = function(app) {
 	User.get(req.body.username, function(err, user){
 		if(user){
 			req.flash('error','Username already exists');
-			console.log('Username already exists');
 			return res.redirect('/reg');
 		}
 //check if the user is an admin
@@ -67,7 +80,6 @@ module.exports = function(app) {
 			}
 			req.session.user = user;
 			req.flash('success','Successfully register');
-			console.log('successfully register');
 			res.redirect('/');
 		})
 	})
@@ -166,7 +178,8 @@ module.exports = function(app) {
 		email: user.email,
 		userType: user.userType
 	});
-	newPasswordUser.update(function(err,user){
+	var userId = user.userId;
+	newPasswordUser.update(null, userId, newPassword,null,null,function(err,user){
 		if(err){
 			req.flash('error',err);
 			return res.redirect('/reset');
@@ -233,7 +246,6 @@ module.exports = function(app) {
   
 //==========================user management=======================================
   app.get('/user-management', function (req, res) {
-  
   	User.getAll(null, function(err,users){
 		if(err){
 		users = [];
@@ -302,9 +314,7 @@ module.exports = function(app) {
 	var itemId = new ObjectId(req.params.itemId);
 	
 	Item.edit(itemId, function(err, item){
-//		console.log(item);
 		var	keyword = [req.body.keyword_1,req.body.keyword_2,req.body.keyword_3,req.body.keyword_4];
-		console.log(keyword);
 		var editItem = new Item({
 			itemName: item.itemName,
 			itemId: item.itemId,
@@ -337,7 +347,6 @@ module.exports = function(app) {
 app.get('/delete-item/:itemId', adminLogin);
 app.get('/delete-item/:itemId', function (req, res) {
 	  var itemId = new ObjectId(req.params.itemId);
-	  console.log(itemId);
 	Item.remove(itemId, function (err) {
     if (err) {
       req.flash('error', err); 
@@ -353,6 +362,33 @@ app.get('/delete-item/:itemId', function (req, res) {
   });
   });
 });
+
+//==========================edit an user=======================================
+
+app.post('/edit-user', adminLogin);
+app.post('/edit-user', function (req, res) {
+	var userType = req.body.userType;
+	var name = req.body.name;
+	var email = req.body.email;
+	var userId = new ObjectId(req.body.userId);
+
+//in the database
+	var editedUser = new User({
+		name: name,
+		userId: userId,
+		password: "null",
+		email: email,
+		userType: userType
+	});
+	editedUser.update(name,userId,null,email,userType,function(err,user){
+		if(err){
+			req.flash('error',err);
+			return res.redirect('back');
+		}
+		req.flash('success','user edited successfully');
+		res.redirect('/user-management');
+		});
+  });
 
 //==========================give permission to an user=======================================
 app.get('/permission/:userName', adminLogin);
@@ -380,7 +416,8 @@ app.get('/permission/:userName', function (req, res) {
 		email: user.email,
 		userType: userType
 	});
-	newPermissionUser.update(function(err,user){
+	var userId = user.userId;
+	newPermissionUser.update(null,userId,null,null,userType,function(err,user){
 		if(err){
 			req.flash('error',err);
 			return res.redirect('back');
@@ -468,7 +505,6 @@ app.get('/delete-user/:userName/:userId', function (req, res) {
 app.get('/delete-list/:listId', adminLogin);
 app.get('/delete-list/:listId', function (req, res) {
 	  var listId = new ObjectId(req.params.listId);
-	  console.log(listId);
 	List.remove(listId, function (err) {
     if (err) {
       req.flash('error', err); 
@@ -503,7 +539,6 @@ app.post('/add-rate', function(req, res){
 		if(err){
 			req.flash('error',err);
 		}
-		console.log("finish rating, successfully updated");
 //get average value of a selected item and update to database.
 	Rate.getItemRate(itemId, function(err, rates){
 	if(err){
@@ -524,7 +559,6 @@ app.post('/add-rate', function(req, res){
 		if(length != 0){
 			rate = item.rate;
 			rate = (rate * (length - 1) + parseInt(rating))/length;
-			console.log(rate);
 			var ratedItem = new Item({
 				itemName: item.itemName,
 				itemId: item.itemId,
@@ -607,19 +641,47 @@ app.post('/add-to-list', function(req, res){
 	});
 });
 
-//==========================view list AJAX=======================================
+//==========================edit list AJAX=======================================
+  app.post('/edit-list', function (req, res) {
+	var listName = req.body.listName;
+	var info = req.body.info;
+
+	var editedList = new List({
+		listName: listName,
+		listId: "null",
+		userName: "null",
+		userId: "null",
+		itemList: "null",
+		rate: "null",
+		info: info,
+	});
+	editedList.update(listName, info, null, function(err){
+		if(err){
+			req.flash('error',err);
+			return res.redirect('back');
+		}
+		req.flash('success','Successfully Edit!');
+		res.send({"status": 1});
+	});
+  });
+
+//==========================view list=======================================
 app.get('/view-list/:listId', function(req, res){
 	var listId = req.params.listId;
 	
-//store an itemId to a selected list
+//get all items in a selected list
 	Item.getAll(null, listId, function(err,items){
 		if(err){
 			items = [];
 		}
-	req.session.items = items;
-
-	req.flash('success','selected list loading successfully');
-	res.redirect('/');
+//get the selected list' listName
+		var list_id = new ObjectId(listId);
+		List.get(list_id, function(err, list){
+			req.session.items = items;
+			req.session.listName = list.listName;
+			req.flash('success','selected list loading successfully');
+			res.redirect('/');
+		});
 	});
 });
 //==========================permission function=======================================
