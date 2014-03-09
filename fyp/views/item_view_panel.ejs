@@ -69,10 +69,13 @@
 				<div class="panel-collapse collapse" id="panel_<%= item.itemId %>">
 					<div class="panel-body">
 						<p class="text-muted">
-							<strong>Category:</strong> <%= item.category %> | <strong>Keyword:</strong> <%= item.keyword %>
+							<strong>Category:</strong> <%= item.category %> | <strong>User name:</strong> <a href="#"><%= item.userName %></a>
 						</p>
 						<p class="text-muted">
-							<strong>User name:</strong> <a href="#"><%= item.userName %></a> | <strong>User id:</strong> <%= item.userId %>
+							<strong>Keyword:</strong>
+							<% item.keyword.forEach(function (tag, index) { %>
+								<span class="label label-warning"><%= tag %></span>
+							<% }) %>
 						</p>
 						<p class="text-muted">
 							<strong>Rate: <div class="rateit" data-rateit-value="<%= item.rate %>" data-rateit-ispreset="true" data-rateit-readonly="true"></div></strong>
