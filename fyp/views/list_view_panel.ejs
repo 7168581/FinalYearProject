@@ -45,23 +45,24 @@
 					<div class="panel-collapse collapse" id="panel_<%= list.listId %>">
 						<div class="panel-body">
 							<p class="text-muted">
-								<strong>list ID:</strong> <%= list.listId %>
+								<strong>User name: </strong> <a href="#"><%= list.userName %></a>
 							</p>
 							<p class="text-muted">
-								<strong>User name:</strong> <a href="#"><%= list.userName %></a>
-							</p>
-							<p class="text-muted">
-								<strong>User id:</strong> <%= list.userId %>
+								<strong>Last updated: </strong> <%= list.lastUpdatedTime.day %>
 							</p>
 							<p class="text-muted">
 								<strong>Rate: <div class="rateit"  id="rateit3" data-rateit-value="<%= list.rate %>" data-rateit-ispreset="true" data-rateit-readonly="true"></div></strong>
 							</p>
 							<p><strong>Description:</strong></p>
 							<p><%= list.info %></p>
+							<p><strong>Items:</strong></p>
+							<% list.itemNameList.forEach(function (itemName, index) { %>
+								<p>- <%= itemName %></p>
+							<% }); %>
 						</div>
 					</div>
 				</div>
-			<% }) %>
+			<% }); %>
 <script>
 var list_id;
 var list_name;
