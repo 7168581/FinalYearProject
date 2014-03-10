@@ -95,11 +95,18 @@
 						</div>
 					</div>
 				</div>
-				<div class="col-md-8">
-					<select class="form-control" id="edit_userType" data-style="btn-success">
-						<option>user</option>
-						<option>admin</option>
-					</select>
+				<div class="form-group">
+					<div class="row">
+						<div class="col-md-3">
+							<label class="control-label" for="userType">User Type</label>
+						</div>
+						<div class="col-md-8">
+							<select class="form-control" id="edit_userType" data-style="btn-success">
+								<option>user</option>
+								<option>admin</option>
+							</select>
+						</div>
+					</div>
 				</div>
 			</div>
 			<div class="modal-footer">
@@ -141,9 +148,7 @@ $(document).ready(function(){
 	
 	$("#user_table tr").mouseover(function(){
 		$(this).find('#user_dropdown').removeClass("hidden");
-		$(this).find('#user_dropdown').addClass("show");
 	}).mouseout(function(){
-		$(this).find('#user_dropdown').removeClass("show");
 		$(this).find('#user_dropdown').addClass("hidden");
 	});
 	
