@@ -227,7 +227,7 @@ app.get('/all-items', function(req, res){
 		});
 
 //check if the item exists
-	Item.get(newItem.itemName, function(err, item){
+	Item.get(newItem.itemName, null, function(err, item){
 		if(item){
 			req.flash('error','Item already exists');
 			return res.redirect('/add-item');
@@ -266,38 +266,12 @@ app.get('/all-items', function(req, res){
   });
   });
 
-  app.post('/user-management', function (req, res) {
-
-//admin userType cannot be changed.
-	if(req.body.username=="admin"){
-		req.flash('error', 'The user-type of user "admin" cannot be changed');
-		return res.redirect('/user-management');
-	}
-
-//in the database
-	var newTypeUser = new User({
-		name: req.body.username,
-		userId: user.userId,
-		password: user.password,
-		email: user.email,
-		userType: newUserType
-	});
-	newTypeUser.update(function(err){
-		if(err){
-			req.flash('error',err);
-			return res.redirect('/reset');
-		}
-		req.flash('success','user-Type changed successfully');
-		res.redirect('/user-management');
-	})
-  });
-
 //==========================edit an item=======================================
 
   app.get('/edit-item/:itemId', adminLogin);
   app.get('/edit-item/:itemId', function (req, res) {
 	var itemId = new ObjectId(req.params.itemId);
-	Item.edit(itemId, function(err, item){
+	Item.get(null, itemId, function(err, item){
 	if(err){
 		req.flash('error', err);
 		return res.redirect('back');
@@ -319,7 +293,7 @@ app.get('/all-items', function(req, res){
   app.post('/edit-item/:itemId', function (req, res) {
 	var itemId = new ObjectId(req.params.itemId);
 	
-	Item.edit(itemId, function(err, item){
+	Item.get(null, itemId, function(err, item){
 		var	keyword = [req.body.keyword_1,req.body.keyword_2,req.body.keyword_3,req.body.keyword_4];
 		var editItem = new Item({
 			itemName: item.itemName,
@@ -332,8 +306,7 @@ app.get('/all-items', function(req, res){
 			listInfo: item.listInfo,
 			rate: item.rate
 		});
-		console.log(req.body.category);
-		editItem.update(function(err){
+		editItem.update(item.itemName, keyword, category, description, null, null, function(err){
 			if(err){
 				req.flash('error',err);
 				return res.redirect('back');
@@ -353,7 +326,7 @@ app.get('/all-items', function(req, res){
 //==========================delete an item=======================================
 app.get('/delete-item/:itemId', adminLogin);
 app.get('/delete-item/:itemId', function (req, res) {
-	  var itemId = new ObjectId(req.params.itemId);
+	var itemId = new ObjectId(req.params.itemId);
 	Item.remove(itemId, function (err) {
     if (err) {
       req.flash('error', err); 
@@ -462,7 +435,8 @@ app.get('/delete-user/:userName/:userId', function (req, res) {
   app.post('/add-list', function (req, res) {
 //produce listId
 	var listId = new ObjectId();
-	var itemList = [];
+	var itemIdList = [];
+	var itemNameList = [];
 //new list
 		newList = new List({
 			listName: req.body.listName,
@@ -471,11 +445,12 @@ app.get('/delete-user/:userName/:userId', function (req, res) {
 			userId: req.session.user.userId,
 			info: req.body.info,
 			rate: "0",
-			itemList: itemList
+			itemIdList: itemIdList,
+			itemNameList: itemNameList
 		});
 
 //check if the list exists
-	List.get(newList.listName, function(err, list){
+	List.get(newList.listName, null, function(err, list){
 		if(list){
 			req.flash('error','list already exists');
 			if(req.body.webpage == 1){
@@ -511,7 +486,7 @@ app.get('/delete-user/:userName/:userId', function (req, res) {
  //==========================delete an list=======================================
 app.get('/delete-list/:listId', adminLogin);
 app.get('/delete-list/:listId', function (req, res) {
-	  var listId = new ObjectId(req.params.listId);
+	var listId = new ObjectId(req.params.listId);
 	List.remove(listId, function (err) {
     if (err) {
       req.flash('error', err); 
@@ -554,7 +529,7 @@ app.post('/add-rate', function(req, res){
 	}
 	length = rates.length;
 	
-	Item.edit(itemId, function(err, item){
+	Item.get(null, itemId, function(err, item){
 		if(err){
 			req.flash('error', err);
 			return res.redirect('back');
@@ -565,7 +540,7 @@ app.post('/add-rate', function(req, res){
 		}
 		if(length != 0){
 			rate = item.rate;
-			rate = (rate * (length - 1) + parseInt(rating))/length;
+			rate = (rate * (length - 1) + parseFloat(rating))/length;
 			var ratedItem = new Item({
 				itemName: item.itemName,
 				itemId: item.itemId,
@@ -577,7 +552,7 @@ app.post('/add-rate', function(req, res){
 				listInfo: item.listInfo,
 				rate: rate
 			});
-			ratedItem.update(function(err){
+			ratedItem.update(item.itemName, null, null, null, null, rate, function(err){
 			if(err){
 				req.flash('error',err);
 				return res.redirect('back');
@@ -600,6 +575,7 @@ app.post('/add-to-list', function(req, res){
 		itemList = req.body.itemList,
 		rate = req.body.rate,
 		itemId = req.body.itemId,
+		itemName = req.body.itemName,
 		info = req.body.info;
 	
 	var newAddedList = new List({
@@ -612,13 +588,13 @@ app.post('/add-to-list', function(req, res){
 	  info: info,
 	});
 //store an itemId to a selected list
-	newAddedList.addToList(itemId, function(err){
+	newAddedList.addToList(itemId, itemName, function(err){
 		if(err){
 			req.flash('error',err);
 			return res.redirect('back');
 		}
 		itemId = new ObjectId(itemId);
-		Item.edit(itemId, function(err, item){
+		Item.get(null, itemId, function(err, item){
 		if(err){
 			req.flash('error', err);
 			return res.redirect('back');
@@ -636,7 +612,7 @@ app.post('/add-to-list', function(req, res){
 				listInfo: listInfo,
 				rate: item.rate
 			});
-				newAddedItem.update(function(err){
+				newAddedItem.update(item.itemName, null, null, null, listInfo, null, function(err){
 				if(err){
 					req.flash('error',err);
 					return res.redirect('back');
@@ -658,11 +634,12 @@ app.post('/add-to-list', function(req, res){
 		listId: "null",
 		userName: "null",
 		userId: "null",
-		itemList: "null",
+		itemIdList: "null",
+		itemNameList: "null",
 		rate: "null",
 		info: info,
 	});
-	editedList.update(listName, info, null, function(err){
+	editedList.update(listName, info, null, null, null, function(err){
 		if(err){
 			req.flash('error',err);
 			return res.redirect('back');
@@ -689,7 +666,7 @@ app.get('/view-list/:listId', function(req, res){
 		}
 //get the selected list' listName
 		var list_id = new ObjectId(listId);
-		List.get(list_id, function(err, list){
+		List.get(null, list_id, function(err, list){
 			req.session.items = items;
 			req.session.listName = list.listName;
 			req.flash('success','selected list loading successfully');
