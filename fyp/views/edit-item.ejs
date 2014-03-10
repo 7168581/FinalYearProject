@@ -40,7 +40,7 @@
 						<label for="category" class="control-label">Category</label>
 					</div>
 					<div class="col-md-8">
-						<select class="form-control" id="edit_item_category" data-style="btn-success">
+						<select class="form-control" id="edit_item_category"  name="category" data-style="btn-success">
 							<optgroup label="Option 1">
 								<option>option 1.1</option>
 								<option>option 1.2</option>
@@ -75,7 +75,6 @@
 
 <script>
 var value = "<%= item.category %>";
-console.log(value);
 $("#edit_item_category").val(value);
 $("#edit_item_category").change();
 </script>
