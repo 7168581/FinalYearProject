@@ -12,7 +12,7 @@
 							<%= item.itemName %>
 						</a>
 						<% if (user.userType == "admin") { %>
-							<div class="pull-right btn-group">
+							<div class="pull-right btn-group hidden" id="item_dropdown">
 								<button type="button" class="btn btn-primary dropdown-toggle btn-xs" data-toggle="dropdown">Action<span class="caret"></span></button>
 								<ul class="dropdown-menu" role="menu">
 									<li><a href="#add_to_list_modal" data-toggle="modal" onclick="add_to_list_function('<%= item.itemId %>')">Add to</a></li>
@@ -91,6 +91,14 @@
 var item_id;
 $(document).ready(function(){
 	$("#item_accordion .panel-collapse").first().collapse('show');
+
+	$("#item_accordion .panel-default").mouseover(function(){
+		$(this).find('#item_dropdown').removeClass("hidden");
+		$(this).find('#item_dropdown').addClass("show");
+	}).mouseout(function(){
+		$(this).find('#item_dropdown').removeClass("show");
+		$(this).find('#item_dropdown').addClass("hidden");
+	});
 });
 
 function delete_function(itemId, itemName){

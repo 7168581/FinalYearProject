@@ -13,7 +13,7 @@
 								<%= list.listName %>
 							</a>
 							<% if (user.userType == "admin") { %>
-								<div class="pull-right btn-group">
+								<div class="pull-right btn-group hidden" id="list_dropdown">
 									<button type="button" class="btn btn-danger dropdown-toggle btn-xs" data-toggle="dropdown">Action<span class="caret"></span></button>
 									<ul class="dropdown-menu" role="menu">
 										<li><a href="/view-list/<%= list.listId %>">View</a></li>
@@ -95,8 +95,17 @@ $(document).ready(function(){
 	$.post(url,{listName: list_name, info: list_info, webpage: 1},function(data){
 		console.log("updated");
 		window.location.href="/";
+		});
 	});
-});
+	
+	$("#list_accordion .panel-default").mouseover(function(){
+		$(this).find('#list_dropdown').removeClass("hidden");
+		$(this).find('#list_dropdown').addClass("show");
+	}).mouseout(function(){
+		$(this).find('#list_dropdown').removeClass("show");
+		$(this).find('#list_dropdown').addClass("hidden");
+	});
+	
 });
 
 /***

@@ -5,7 +5,7 @@
 	<legend><h1><%= title %></h1></legend>
 	<div class="col-md-8 col-md-offset-2">
 		<div class="scroll-area" data-spy="scroll" data-offset="0">
-			<table class="table table-hover table-bordered table-striped">
+			<table class="table table-hover table-bordered table-striped" id="user_table">
 				<% users.forEach(function (user, index) { %>
 					<tr>
 						<td>
@@ -23,11 +23,13 @@
 								</div>
 								<div class="col-md-4">
 								<% if(user.name != "admin") { %>
-									<div class="pull-right">
-										<input type="checkbox">
-										<a class="edit" href="/permission/<%= user.name %>">Give permission</a>
-										<a class="edit" href="#edit_user_modal" data-toggle="modal" onclick="edit_user_function('<%= user.userId %>', '<%= user.name %>', '<%= user.userType %>', '<%= user.email %>')">Edit</a>
-									<a class="delete" href="#delete_user_modal" data-toggle="modal" onclick="delete_user_function('<%= user.userId %>', '<%= user.name %>')">Delete</a>
+									<div class="pull-right btn-group hidden" id="user_dropdown">
+										<button type="button" class="btn btn-danger dropdown-toggle btn-xs" data-toggle="dropdown">Action<span class="caret"></span></button>
+										<ul class="dropdown-menu" role="menu">
+											<li><a class="edit" href="/permission/<%= user.name %>">Give permission</a></li>
+											<li><a class="edit" href="#edit_user_modal" data-toggle="modal" onclick="edit_user_function('<%= user.userId %>', '<%= user.name %>', '<%= user.userType %>', '<%= user.email %>')">Edit</a></li>
+											<li><a class="delete" href="#delete_user_modal" data-toggle="modal" onclick="delete_user_function('<%= user.userId %>', '<%= user.name %>')">Delete</a></li>
+										</ul>
 									</div>
 								<% } %>
 								</div>
@@ -136,6 +138,15 @@ $(document).ready(function(){
 			window.location.href="/user-management";
 		});
 	});
+	
+	$("#user_table tr").mouseover(function(){
+		$(this).find('#user_dropdown').removeClass("hidden");
+		$(this).find('#user_dropdown').addClass("show");
+	}).mouseout(function(){
+		$(this).find('#user_dropdown').removeClass("show");
+		$(this).find('#user_dropdown').addClass("hidden");
+	});
+	
 });
 
 function delete_user_function(userId, userName){
