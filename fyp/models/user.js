@@ -1,5 +1,15 @@
 var mongodb = require('./db');
+var date = new Date();
 
+var time = {
+      date: date,
+      year : date.getFullYear(),
+      month : date.getFullYear() + "-" + (date.getMonth() + 1),
+      day : date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate(),
+      minute : date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " + 
+      date.getHours() + ":" + (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) 
+  }
+  
 function User(user) {
   this.name = user.name;
   this.userId = user.userId;
@@ -17,7 +27,9 @@ User.prototype.save = function(callback) {
 	  userId: this.userId,
       password: this.password,
       email: this.email,
-	  userType: this.userType
+	  userType: this.userType,
+	  addedTime: time,
+	  lastUpdatedTime: time
   };
   //open database
   mongodb.open(function (err, db) {
@@ -85,7 +97,7 @@ User.getAll = function(name, callback) {
         return callback(err);
       }
       //look for a list of users
-	  	  var query = {};
+	  var query = {};
 	  if(name){
 		query.name = name;
 	  }
@@ -103,7 +115,7 @@ User.getAll = function(name, callback) {
 };
 
 //====================update a single user information================
-User.prototype.update = function(name,userId,password,email,userType,callback) {
+User.prototype.update = function(name, userId, password, email, userType, callback) {
   //open database
   mongodb.open(function (err, db) {
     if (err) {
@@ -129,7 +141,7 @@ User.prototype.update = function(name,userId,password,email,userType,callback) {
 	  if(userType){
 		query.userType = userType;
 	  }
-	  console.log(query);
+	  query.lastUpdatedTime = time;
       collection.update(
 	{"userId": userId},
 	{"$set": query},

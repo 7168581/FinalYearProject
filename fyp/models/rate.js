@@ -18,39 +18,6 @@ function Rate(rate) {
 
 module.exports = Rate;
 
-//====================store rate information================
-Rate.prototype.save = function(callback) {
-  var rate = {
-	  itemId: this.itemId,
-	  userId: this.userId,
-	  rating: this.rating,
-	  time: time
-  };
-  //open database
-  mongodb.open(function (err, db) {
-    if (err) {
-      return callback(err);
-    }
-    //get the set of rates
-    db.collection('rates', function (err, collection) {
-      if (err) {
-        mongodb.close();
-        return callback(err);
-      }
-      //insert a new rate into the rate set
-      collection.insert(rate, {
-        safe: true
-      }, function (err, rate) {
-        mongodb.close();
-        if (err) {
-          return callback(err);
-        }
-        callback(null, rate[0]);
-      });
-    });
-  });
-};
-
 //====================get a single rate information================
 Rate.get = function(itemId, userId, callback) {
   //open database
@@ -65,10 +32,14 @@ Rate.get = function(itemId, userId, callback) {
         return callback(err);
       }
       //look for rate(s) based on both itemId and userId
-      collection.findOne({
-		itemId: itemId,
-		userId: userId
-      },function (err, rate) {
+	  var query = {};
+	  if(itemId){
+		query.itemId = itemId;
+	  }
+	  if(userId){
+		query.userId = userId;
+	  }
+      collection.findOne(query,function (err, rate) {
         mongodb.close();
         if (err) {
           return callback(err);
@@ -118,7 +89,7 @@ Rate.prototype.update = function(callback) {
 	  itemId: this.itemId,
 	  userId: this.userId,
 	  rating: this.rating,
-	  time: time
+	  lastUpdatedTime: time
   };
   //open database
   mongodb.open(function (err, db) {
@@ -134,7 +105,7 @@ Rate.prototype.update = function(callback) {
       //update rate information in the rate set
       collection.update(
 	{"itemId":rate.itemId, "userId":rate.userId},
-	{$set:{"rating": rate.rating, "time": rate.time}},
+	{$set:{"rating": rate.rating, "lastUpdatedTime": rate.time}},
 	{safe: true, upsert: true
       }, function (err) {
         mongodb.close();

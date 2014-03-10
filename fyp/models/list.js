@@ -15,7 +15,8 @@ function List(list) {
   this.listId = list.listId;
   this.userName = list.userName;
   this.userId = list.userId;
-  this.itemList = list.itemList;
+  this.itemIdList = list.itemIdList;
+  this.itemNameList = list.itemNameList;
   this.rate = list.rate;
   this.info = list.info;
 };
@@ -30,10 +31,12 @@ List.prototype.save = function(callback) {
       listId: this.listId,
 	  userName: this.userName,
 	  userId: this.userId,
-      itemList: this.itemList,
+      itemIdList: this.itemIdList,
+	  itemNameList: this.itemNameList,
 	  rate: this.rate,
 	  info: this.info,
-	  time: time
+	  addedTime: time,
+	  lastUpdatedTime: time
   };
   //open database
   mongodb.open(function (err, db) {
@@ -61,7 +64,7 @@ List.prototype.save = function(callback) {
 };
 
 //==============get a single list information====================
-List.get = function(listId, callback) {
+List.get = function(listName, listId, callback) {
   //open database
   mongodb.open(function (err, db) {
     if (err) {
@@ -74,9 +77,14 @@ List.get = function(listId, callback) {
         return callback(err);
       }
       //look for a list which its listId is 'listId'
-      collection.findOne({
-        listId: listId
-      }, function (err, list) {
+	  var query = {};
+	  if(listName){
+		query.listName = listName;
+	  }
+	  if(listId){
+		query.listId = listId;
+	  }
+      collection.findOne(query, function (err, list) {
         mongodb.close();
         if (err) {
           return callback(err);
@@ -118,7 +126,7 @@ List.getAll = function(userName, callback) {
   });
 };
 //=======update list information=============
-List.prototype.update = function(listName, info, itemList, callback) {
+List.prototype.update = function(listName, info, itemIdList, itemNameList, rate, callback) {
 	console.log(info);
   //open database
   mongodb.open(function (err, db) {
@@ -136,14 +144,21 @@ List.prototype.update = function(listName, info, itemList, callback) {
 	  if(info){
 		query.info = info;
 	  }
-	  if(itemList){
-		query.itemList = itemList;
+	  if(itemIdList){
+		query.itemIdList = itemIdList;
 	  }
+	  if(itemNameList){
+		query.itemNameList = itemNameList;
+	  }
+	  if(rate){
+		query.rate = rate;
+	  }
+	  query.lastUpdatedTime = time;
 	  collection.update(
 	{"listName": listName},
 	{"$set": query},
 	{safe: true
-      }, function (err, list) {
+      }, function (err) {
         mongodb.close();
         if (err) {
           return callback(err);
@@ -155,17 +170,10 @@ List.prototype.update = function(listName, info, itemList, callback) {
 };
 
 //=======add item into list=============
-List.prototype.addToList = function(itemId, callback) {
+List.prototype.addToList = function(itemId, itemName, callback) {
   
   var list = {
-      listName: this.listName,
-      listId: this.listId,
-	  userName: this.userName,
-	  userId: this.userId,
-      itemList: this.itemList,
-	  rate: this.rate,
-	  info: this.info,
-	  time:time
+      listName: this.listName
   };
   //open database
   mongodb.open(function (err, db) {
@@ -181,7 +189,7 @@ List.prototype.addToList = function(itemId, callback) {
       //update list information in the list set
       collection.update(
 	{"listName":list.listName},
-	{"$addToSet": {"itemList": itemId}},
+	{"$addToSet": {"itemIdList": itemId, "itemNameList": itemName}, "$set":{"lastUpdatedTime":time}},
 	{safe: true
       }, function (err, list) {
         mongodb.close();

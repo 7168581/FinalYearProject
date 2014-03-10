@@ -31,12 +31,13 @@ Item.prototype.save = function(callback) {
 	  itemId: this.itemId,
       keyword: this.keyword,
       category: this.category,
-	  time: time,
 	  description: this.description,
 	  userName: this.userName,
 	  userId: this.userId,
 	  listInfo: this.listInfo,
-	  rate: this.rate
+	  rate: this.rate,
+	  addedTime: time,
+	  lastUpdatedTime: time
   };
 //	console.log(item.itemId);
   //open database
@@ -65,7 +66,7 @@ Item.prototype.save = function(callback) {
 };
 
 //====================get a single item information================
-Item.get = function(itemName, callback) {
+Item.get = function(itemName, itemId, callback) {
   //open database
   mongodb.open(function (err, db) {
     if (err) {
@@ -78,9 +79,16 @@ Item.get = function(itemName, callback) {
         return callback(err);
       }
       //look for item(s) called itemName
-      collection.findOne({
-		itemName: itemName
-      },function (err, item) {
+	  var query ={};
+	  if(itemName){
+		query.itemName = itemName;
+	  }
+	  if(itemId){
+		query.itemId = itemId;
+	  }
+      collection.findOne(
+		query
+      ,function (err, item) {
         mongodb.close();
         if (err) {
           return callback(err);
@@ -91,31 +99,6 @@ Item.get = function(itemName, callback) {
   });
 };
 
-Item.edit = function(itemId, callback) {
-  //open database
-  mongodb.open(function (err, db) {
-    if (err) {
-      return callback(err);
-    }
-    //get the collection of items
-    db.collection('items', function (err, collection) {
-      if (err) {
-        mongodb.close();
-        return callback(err);
-      }
-      //look for item(s) called itemId
-      collection.findOne({
-		itemId: itemId
-      },function (err, item) {
-        mongodb.close();
-        if (err) {
-          return callback(err);
-        }
-        callback(null, item);
-      });
-    });
-  });
-};
 //====================get all items======================
 Item.getAll = function(userName, listId, callback) {
   //open database
@@ -137,6 +120,7 @@ Item.getAll = function(userName, listId, callback) {
 	  if(listId){
 		query.listInfo = listId;
 	  }
+	  console.log(query);
       collection.find(query).sort({
 		time: -1
       }).toArray(function (err, items) {
@@ -151,20 +135,8 @@ Item.getAll = function(userName, listId, callback) {
 };
 
 //====================update an item information================
-Item.prototype.update = function(callback) {
+Item.prototype.update = function(itemName, keyword, category, description, listInfo, rate, callback) {
 
-  var item = {
-      itemName: this.itemName,
-	  itemId: this.itemId,
-      keyword: this.keyword,
-      category: this.category,
-	  time: time,
-	  description: this.description,
-	  userName: this.userName,
-	  userId: this.userId,
-	  listInfo: this.listInfo,
-	  rate: this.rate
-  };
 //open database
   mongodb.open(function (err, db) {
     if (err) {
@@ -177,9 +149,29 @@ Item.prototype.update = function(callback) {
         return callback(err);
       }
       //update item information in the item set
+	  var query = {};
+	  if(itemName){
+		query.itemName = itemName;
+	  }
+	  if(keyword){
+		query.keyword = keyword;
+	  }
+	  if(category){
+		query.category = category;
+	  }
+	  if(description){
+		query.description = description;
+	  }
+	  if(listInfo){
+		query.listInfo = listInfo;
+	  }
+	  if(rate){
+		query.rate = rate;
+	  }
+	  query.lastUpdatedTime = time;
       collection.update(
-	{"itemName":item.itemName},
-	item,
+	{"itemName":itemName},
+	{"$set": query},
 	{safe: true
       }, function (err) {
         mongodb.close();
