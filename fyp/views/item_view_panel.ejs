@@ -5,7 +5,7 @@
 	<div class="scroll-area" data-spy="scroll" data-offset="0">
 		<div class="panel-group" id="item_accordion">
 		<% items.forEach(function (item, index) { %>
-			<div class="panel panel-default">
+			<div class="panel panel-default" id="single_item">
 				<div class="panel-heading">
 					<h3 class="panel-title">
 						<a href="#panel_<%= item.itemId %>" data-toggle="collapse" data-parent="#item_accordion">
@@ -52,7 +52,7 @@
 									<div>
 										<% lists.forEach(function (list, index) { %>
 											  <a class="list-group-item" onclick="select_list_function('<%= list.listName %>','<%= list.listId %>', '<%= list.itemList %>', '<%= list.rate %>', '<%= list.info %>')">
-												<h4 class="list-group-item-heading"><%= list.listName %> <span class="badge pull-right"><%= list.itemList.length %></span></h4>
+												<h4 class="list-group-item-heading"><%= list.listName %> <span class="label label-info pull-right"><%= list.itemList.length %></span></h4>
 												<p class="list-group-item-text"><%= list.info %></p>
 											  </a>
 										<% }) %>
@@ -90,13 +90,11 @@
 <script>
 var item_id;
 $(document).ready(function(){
-	$("#item_accordion .panel-collapse").first().collapse('show');
+	$("#item_accordion .collapse").first().collapse('show');
 
 	$("#item_accordion .panel-default").mouseover(function(){
 		$(this).find('#item_dropdown').removeClass("hidden");
-		$(this).find('#item_dropdown').addClass("show");
 	}).mouseout(function(){
-		$(this).find('#item_dropdown').removeClass("show");
 		$(this).find('#item_dropdown').addClass("hidden");
 	});
 });
