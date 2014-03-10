@@ -25,9 +25,15 @@ app.get('/all-items', function(req, res){
 		if(err){
 			items = [];
 		}
-	req.session.items = items;
-	req.session.listName = "All items";
-	res.redirect('/');
+	List.getAll(null, function(err,lists){
+		if(err){
+		lists = [];
+	}
+		req.session.items = items;
+		req.session.lists = lists;
+		req.session.listName = "All items";
+		res.redirect('/');
+		});
 	});
 });
  
@@ -326,6 +332,7 @@ app.get('/all-items', function(req, res){
 			listInfo: item.listInfo,
 			rate: item.rate
 		});
+		console.log(req.body.category);
 		editItem.update(function(err){
 			if(err){
 				req.flash('error',err);
@@ -660,8 +667,14 @@ app.post('/add-to-list', function(req, res){
 			req.flash('error',err);
 			return res.redirect('back');
 		}
-		req.flash('success','Successfully Edit!');
-		res.send({"status": 1});
+		List.getAll(null, function(err,lists){
+			if(err){
+				lists = [];
+			}
+			req.session.lists = lists;
+			req.flash('success','Successfully Edit!');
+			res.send({"status": 1});
+		});
 	});
   });
 
