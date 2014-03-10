@@ -15,7 +15,7 @@
 							<div class="pull-right btn-group hidden" id="item_dropdown">
 								<button type="button" class="btn btn-primary dropdown-toggle btn-xs" data-toggle="dropdown">Action<span class="caret"></span></button>
 								<ul class="dropdown-menu" role="menu">
-									<li><a href="#add_to_list_modal" data-toggle="modal" onclick="add_to_list_function('<%= item.itemId %>')">Add to</a></li>
+									<li><a href="#add_to_list_modal" data-toggle="modal" onclick="add_to_list_function('<%= item.itemName %>', '<%= item.itemId %>')">Add to</a></li>
 									<li><a href="/edit-item/<%= item.itemId %>">Edit</a></li>
 									<li><a href="#delete-modal" data-toggle="modal" onclick="delete_function('<%= item.itemId %>', '<%= item.itemName %>')" id="delete_item">Delete</a></li>
 								</ul>
@@ -52,7 +52,7 @@
 									<div>
 										<% lists.forEach(function (list, index) { %>
 											  <a class="list-group-item" onclick="select_list_function('<%= list.listName %>','<%= list.listId %>', '<%= list.itemList %>', '<%= list.rate %>', '<%= list.info %>')">
-												<h4 class="list-group-item-heading"><%= list.listName %> <span class="label label-info pull-right"><%= list.itemList.length %></span></h4>
+												<h4 class="list-group-item-heading"><%= list.listName %> <span class="label label-info pull-right"><%= list.itemNameList.length %></span></h4>
 												<p class="list-group-item-text"><%= list.info %></p>
 											  </a>
 										<% }) %>
@@ -89,6 +89,7 @@
 		<% }) %>
 <script>
 var item_id;
+var item_name;
 $(document).ready(function(){
 	$("#item_accordion .collapse").first().collapse('show');
 
@@ -122,8 +123,9 @@ $('#item_accordion .rateit').bind('rated', function(event, value) {
 
 $("#item_accordion .rateit").bind('over', function (event,value) { $(this).attr('title', value); });
 
-function add_to_list_function(itemId){
+function add_to_list_function(itemName, itemId){
 	item_id = itemId;
+	item_name = itemName;
 }
 
 function select_list_function(listName, listId, itemList, rate, info){
@@ -137,7 +139,8 @@ function select_list_function(listName, listId, itemList, rate, info){
 				itemList: itemList,
 				rate: rate,
 				info: info,
-				itemId: item_id
+				itemId: item_id,
+				itemName: item_name
 				},function(){
 			console.log(item_id + " is added into " + listName);
 			$("#cancel_add_to_list").click();
