@@ -49,7 +49,7 @@ $(document).ready(function(){
 		<a class="navbar-brand" href="/">FYP</a>
 		<ul class="nav navbar-nav">
 			<li>
-				<a href="/">Homepage</a>
+				<a href="/all-items">Homepage</a>
 			</li>
 			<% if (user) { %>
 			<li id="logout_page">
@@ -88,12 +88,12 @@ $(document).ready(function(){
 <div id="container" class="container">
 
 <% if (success) { %>
-	<div class="alert alert-success">
+	<div class="alert alert-success" id="success_alert">
 		<%= success %>
 	</div>
 <% } %>
 <% if (error) { %>
-	<div class="alert alert-danger">
+	<div class="alert alert-danger"  id="error_alert">
 		<%= error %>
 	</div>
 <% } %>
