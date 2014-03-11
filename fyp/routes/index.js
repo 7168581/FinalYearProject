@@ -306,7 +306,7 @@ app.get('/all-items', function(req, res){
 			listInfo: item.listInfo,
 			rate: item.rate
 		});
-		editItem.update(item.itemName, keyword, category, description, null, null, function(err){
+		editItem.update(item.itemName, keyword, req.body.category, req.body.description, null, null, function(err){
 			if(err){
 				req.flash('error',err);
 				return res.redirect('back');
