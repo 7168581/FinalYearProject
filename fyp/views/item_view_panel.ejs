@@ -1,6 +1,15 @@
 <div class="col-md-6 col-md-offset-1">
-<div class="center-block text-primary">
-	<h3><%= listName %><h3>
+<div class="center-block text-primary" id="list_title">
+	<h3><%= listName %>
+		<% if (listType == "auto") { %>
+			<div class="pull-right btn-group hidden" id="list_title_dropdown">
+				<button type="button" class="btn btn-warning dropdown-toggle btn-xs" data-toggle="dropdown">Action<span class="caret"></span></button>
+				<ul class="dropdown-menu" role="menu">
+					<li><a href="#save_list_modal" data-toggle="modal" onclick="save_list_function()">Save</a></li>
+				</ul>
+			</div>
+		<% } %>
+	<h3>
 </div>
 	<div class="scroll-area" data-spy="scroll" data-offset="0">
 		<div class="panel-group" id="item_accordion">
@@ -51,7 +60,7 @@
 								<div class="modal-body">
 									<div>
 										<% lists.forEach(function (list, index) { %>
-											  <a class="list-group-item" onclick="select_list_function('<%= list.listName %>','<%= list.listId %>', '<%= list.itemList %>', '<%= list.rate %>', '<%= list.info %>')">
+											  <a class="list-group-item" onclick="select_list_function('<%= list.listName %>','<%= list.listId %>', '<%= list.itemIdList %>', '<%= list.itemNameList %>', '<%= list.rate %>', '<%= list.info %>')">
 												<h4 class="list-group-item-heading"><%= list.listName %> <span class="label label-info pull-right"><%= list.itemNameList.length %></span></h4>
 												<p class="list-group-item-text"><%= list.info %></p>
 											  </a>
@@ -64,12 +73,52 @@
 							</div>
 						</div>
 					</div>
+<!--This is save_list modal-->
+					<div class="modal fade" id="save_list_modal" tabindex="-1" role="dialog" aria-labelledby="deleteLabel" aria-hidden="true">
+						<div class="modal-dialog">
+							<div class="modal-content">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+									<h3>Please fill fields below</h3>
+								</div>
+								<div class="modal-body">
+									<div class="form-group">
+										<div class="row">
+											<div class="col-md-3">
+												<label class="control-label" for="itemName">List name</label>
+											</div>
+											<div class="col-md-8">
+												<input type="text" class="form-control" id="generate_listName" autofocus="autofocus" required="required" maxlength="25" placeholder="List name">
+											</div>
+										</div>
+									</div>
+									<div class="form-group">
+										<div class="row">
+											<div class="col-md-3">
+												<label class="control-label" for="info">List Information</label>
+											</div>
+											<div class="col-md-8">
+												<textarea class="form-control" id="generate_info" name="info" row="8" placeholder="Some info here"></textarea>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="modal-footer">
+									<a class="btn" data-dismiss="modal" id="cancel_save_list">Cancel</a>
+									<a class="btn btn-primary" id="save_list_confirm_btn">Save!</a>
+								</div>
+							</div>
+						</div>
+					</div>
 					
 				</div>
 				<div class="panel-collapse collapse" id="panel_<%= item.itemId %>">
 					<div class="panel-body">
 						<p class="text-muted">
-							<strong>Category:</strong> <%= item.category %> | <strong>User name:</strong> <a href="#"><%= item.userName %></a>
+							<strong>Category:</strong> <%= item.category %>  |  <strong>User name:</strong> <a href="#"><%= item.userName %></a>
+						</p>
+						<p class="text-muted">
+							<strong>Added:</strong> <%= item.addedTime.minute %>  |  <strong>Last Updated:</strong> <%= item.lastUpdatedTime.minute %>
 						</p>
 						<p class="text-muted">
 							<strong>Keyword:</strong>
@@ -79,7 +128,7 @@
 						</p>
 						<p class="text-muted">
 							<strong>Rate: <div class="rateit" data-rateit-value="<%= item.rate %>" data-rateit-ispreset="true" data-rateit-readonly="true"></div></strong>
-							| <span class="rateit" id="rateit2" data-id="<%= item.itemId %>"></span> 
+							| <span class="rateit" id="rateit2" data-id="<%= item.itemId %>" data-rateit-resetable="false"></span> 
 						</p>
 						<p><strong>Description:</strong></p>
 						<p><%= item.description %></p>
@@ -88,15 +137,44 @@
 			</div>
 		<% }) %>
 <script>
-var item_id;
-var item_name;
+var item_id,
+	item_name,
+	listName,
+	info;
+
+
 $(document).ready(function(){
 	$("#item_accordion .collapse").first().collapse('show');
 
+	
 	$("#item_accordion .panel-default").mouseover(function(){
 		$(this).find('#item_dropdown').removeClass("hidden");
 	}).mouseout(function(){
 		$(this).find('#item_dropdown').addClass("hidden");
+	});
+	
+	
+	$("#list_title").mouseover(function(){
+		$("#list_title_dropdown").removeClass("hidden");
+	}).mouseout(function(){
+		$("#list_title_dropdown").addClass("hidden");
+	});
+	
+	
+	$("#save_list_confirm_btn").click(function(){
+		var url = "/save-list",
+			listName = $("#generate_listName").val(),
+			info = $("#generate_info").val();
+			
+		$.post(url,{listName: listName, info: info, webpage: 1},function(data){
+				if(data.status == 1){
+					alert("List name has been used already");
+				}
+				if(data.status == 2){
+					window.location.href="/";
+					//$("#cancel_create").click();
+				}
+		});
 	});
 });
 
@@ -128,15 +206,18 @@ function add_to_list_function(itemName, itemId){
 	item_name = itemName;
 }
 
-function select_list_function(listName, listId, itemList, rate, info){
+function save_list_function(){
+	
+}
+
+function select_list_function(listName, listId, itemIdList, itemNameList, rate, info){
 	var url = "/add-to-list";
-	console.log(JSON.stringify(itemList));
-	console.log(itemList);
 	console.log(item_id);
 	$.post(url,{
 				listName: listName,
 				listId: listId,
-				itemList: itemList,
+				itemIdList: itemIdList,
+				itemNameList: itemNameList,
 				rate: rate,
 				info: info,
 				itemId: item_id,
