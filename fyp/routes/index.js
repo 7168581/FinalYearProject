@@ -13,6 +13,7 @@ module.exports = function(app) {
 	items: req.session.items,
 	lists: req.session.lists,
 	listName: req.session.listName,
+	listType: req.session.listType,
 	success: req.flash('success').toString(),
 	error: req.flash('error').toString()
     });
@@ -32,6 +33,7 @@ app.get('/all-items', function(req, res){
 		req.session.items = items;
 		req.session.lists = lists;
 		req.session.listName = "All items";
+		req.session.listType = "none";
 		res.redirect('/');
 		});
 	});
@@ -483,6 +485,99 @@ app.get('/delete-user/:userName/:userId', function (req, res) {
   });
 });
 
+//==========================system generate-list AJAX=======================================
+  app.post('/generate-list', function (req, res) {
+	var rule1 = req.body.rule1,
+		rule2 = req.body.rule2,
+		rule3 = req.body.rule3,
+		rule4 = req.body.rule4,
+		num1 = req.body.num1;
+		num2 = req.body.num2,
+		num3 = req.body.num3,
+		num4 = req.body.num4,
+		listName = "New List",
+		newItemList = [];
+
+	var rules = [rule1,rule2,rule3,rule4];
+	console.log("rule1: " + rule1);
+	console.log("rules: " + rules);
+	
+	Item.getAll(null, null, function(err, items){
+		if(err){
+			req.flash('error',err);
+			return res.redirect('back');
+		}
+		if(num1 != 0){
+			for (var i = 0; i < num1; i++) {
+				var index = Math.floor(Math.random() * items.length);
+				var item = items[index];
+				newItemList.push(item);
+				items.splice(index, 1);
+			}
+		}
+			req.session.items = newItemList;
+			req.session.listName = listName;
+			req.session.listType = "auto";
+			req.flash('success','Successfully generated!');
+			res.send({"status": 1});
+		});
+  });
+  
+//==========================save list AJAX=======================================
+  app.post('/save-list', function (req, res) {
+//produce listId
+	var listId = new ObjectId();
+	var itemIdList = [];
+	var itemNameList = [];
+	var items = req.session.items;
+	
+	for (var i = 0; i < items.length; i++) {
+		var item = items[i];
+		console.log("itemId: " + item.itemId);
+		itemIdList.push(item.itemId);
+		itemNameList.push(item.itemName);
+	}
+	console.log("itemIdList: " + itemIdList);
+//new list
+		newList = new List({
+			listName: req.body.listName,
+			listId: listId,
+			userName: req.session.user.name,
+			userId: req.session.user.userId,
+			info: req.body.info,
+			rate: 0,
+			itemIdList: itemIdList,
+			itemNameList: itemNameList
+		});
+
+//check if the list exists
+	List.get(newList.listName, null, function(err, list){
+		if(list){
+			req.flash('error','list already exists');
+			res.send({"status": 1});
+		}
+//if not in the database
+		if(!list){
+		
+			newList.save(function(err){
+				if(err){
+					req.flash('error',err);
+					return res.redirect('/');
+				}
+				req.flash('success','Successfully saved');
+				List.getAll(null, function(err,lists){
+					if(err){
+					lists = [];
+				}
+					req.session.lists = lists;
+					res.send({"status": 2});
+				});
+			});
+			
+		}
+  });
+});
+
  //==========================delete an list=======================================
 app.get('/delete-list/:listId', adminLogin);
 app.get('/delete-list/:listId', function (req, res) {
@@ -572,7 +667,8 @@ app.post('/add-to-list', function(req, res){
 		listId = req.body.listId,
 		userName = req.session.user.userName,
 		userId = req.session.user.userId,
-		itemList = req.body.itemList,
+		itemIdList = req.body.itemIdList,
+		itemNameList = req.body.itemNameList,
 		rate = req.body.rate,
 		itemId = req.body.itemId,
 		itemName = req.body.itemName,
@@ -583,7 +679,8 @@ app.post('/add-to-list', function(req, res){
       listId: listId,
 	  userName: userName,
 	  userId: userId,
-      itemList: itemList,
+      itemIdList: itemIdList,
+	  itemNameList: itemNameList,
 	  rate: rate,
 	  info: info,
 	});
@@ -669,6 +766,7 @@ app.get('/view-list/:listId', function(req, res){
 		List.get(null, list_id, function(err, list){
 			req.session.items = items;
 			req.session.listName = list.listName;
+			req.session.listType = "none";
 			req.flash('success','selected list loading successfully');
 			res.redirect('/');
 		});
