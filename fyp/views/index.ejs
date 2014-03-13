@@ -33,7 +33,7 @@
 			<div class="pull-right">
 				<a href="/add-item" type="button" class="btn btn-info">Add an item</a>
 				<a href="#create_list_modal" type="button" class="btn btn-success" data-toggle="modal" >Create a List</a>
-				<a href="#random_items" type="button" class="btn btn-primary">Generate a list!</a>
+				<a href="#generate_list" type="button" class="btn btn-primary" data-toggle="modal" >Generate a list!</a>
 			</div>
 		</div>
 <% } %>
@@ -51,7 +51,7 @@
 
 <!--This is create_item modal-->
 
-<div class="modal fade" id="random_items" tabindex="-1" role="dialog" aria-labelledby="deleteLabel" aria-hidden="true">
+<div class="modal fade" id="generate_list" tabindex="-1" role="dialog" aria-labelledby="deleteLabel" aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -61,31 +61,129 @@
 			<div class="modal-body">
 				<div class="form-group">
 					<div class="row">
-						<div class="col-md-3">
-							<label class="control-label" for="itemName">List name</label>
+						<label class="col-md-2 control-label">Rules: </label>
+						<div class="col-md-4">
+							<select class="form-control" name="rule_1" id="rule_1">
+								<option>Random</option>
+								<option>Top Rated</option>
+								<option>Last updated</option>
+								<option>Added time</option>
+							</select>
 						</div>
-						<div class="col-md-8">
-							<input type="text" class="form-control" id="create_listName" autofocus="autofocus" required="required" maxlength="25" placeholder="List name">
+						<div class="col-md-3">
+							<label class="control-label">Number of items</label>
+						</div>
+						<div class="col-md-2">
+							<input type="text" class="form-control" id="number_items_1" autofocus="autofocus" required="required" maxlength="2" value="10">
 						</div>
 					</div>
 				</div>
 				<div class="form-group">
 					<div class="row">
-						<div class="col-md-3">
-							<label class="control-label" for="info">List Information</label>
+						<label class="col-md-2 control-label">Rules: </label>
+						<div class="col-md-4">
+							<select class="form-control" name="rule_2" id="rule_2">
+								<option>Random</option>
+								<option>Top Rated</option>
+								<option>Last updated</option>
+								<option>Added time</option>
+							</select>
 						</div>
-						<div class="col-md-8">
-							<textarea class="form-control" id="create_info" name="info" row="8" placeholder="Some info here"></textarea>
+						<div class="col-md-3">
+							<label class="control-label">Number of items</label>
+						</div>
+						<div class="col-md-2">
+							<input type="text" class="form-control" id="number_items_2" autofocus="autofocus" required="required" maxlength="2" value="0">
+						</div>
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="row">
+						<label class="col-md-2 control-label">Rules: </label>
+						<div class="col-md-4">
+							<select class="form-control" name="rule_3" id="rule_3">
+								<option>Random</option>
+								<option>Top Rated</option>
+								<option selected="true">Last updated</option>
+								<option>Added time</option>
+							</select>
+						</div>
+						<div class="col-md-3">
+							<label class="control-label">Number of items</label>
+						</div>
+						<div class="col-md-2">
+							<input type="text" class="form-control" id="number_items_3" autofocus="autofocus" required="required" maxlength="2" value="0">
+						</div>
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="row">
+						<label class="col-md-2 control-label">Rules: </label>
+						<div class="col-md-4">
+							<select class="form-control" name="rule_4" id="rule_4">
+								<option>Random</option>
+								<option>Top Rated</option>
+								<option>Last updated</option>
+								<option selected="true">Added time</option>
+							</select>
+						</div>
+						<div class="col-md-3">
+							<label class="control-label">Number of items</label>
+						</div>
+						<div class="col-md-2">
+							<input type="text" class="form-control" id="number_items_4" autofocus="autofocus" required="required" maxlength="2" value="0">
 						</div>
 					</div>
 				</div>
 			</div>
 			<div class="modal-footer">
 				<a class="btn" data-dismiss="modal" id="cancel_create">Cancel</a>
-				<a class="btn btn-primary" id="create_list_confirm_btn">Create!</a>
+				<a class="btn btn-primary" id="create_list_by_rule_confirm_btn">Create!</a>
 			</div>
 		</div>
 	</div>
 </div>
+
+<script>
+var rule1, rule2, rule3, rule4;
+var num1, num2, num3, num4;
+
+var value = "Top Rated";
+$("#rule_2").val(value);
+$("#edit_item_category").change();
+
+$(document).ready(function(){
+	$("#create_list_by_rule_confirm_btn").click(function(){
+		var url = "/generate-list",
+		rule1 = $("#rule_1").val(),
+		num1 = $("#number_items_1").val();
+		rule2 = $("#rule_2").val(),
+		num2 = $("#number_items_2").val();
+		rule3 = $("#rule_3").val(),
+		num3 = $("#number_items_3").val();
+		rule4 = $("#rule_4").val(),
+		num4 = $("#number_items_4").val();
+		
+		console.log("rules: "+ rule1 + " " + rule2 + " " + rule3 + " " + rule4);
+		console.log("nums: "+ num1 + " " + num2 + " " + num3 + " " + num4);
+
+	$.post(url,{
+				rule1: rule1, 
+				rule2: rule2, 
+				rule3: rule3, 
+				rule4: rule4, 
+				num1: num1,
+				num2: num2,
+				num3: num3,
+				num4: num4,
+				itemPage: 1
+				},function(data){
+				window.location.href="/";
+	});
+
+	});
+});
+
+</script>
 
 <%- include footer %>
