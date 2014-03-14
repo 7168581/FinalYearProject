@@ -496,31 +496,56 @@ app.get('/delete-user/:userName/:userId', function (req, res) {
 		num3 = req.body.num3,
 		num4 = req.body.num4,
 		listName = "New List",
+		tempList = [],
 		newItemList = [];
 
-	var rules = [rule1,rule2,rule3,rule4];
-	console.log("rule1: " + rule1);
-	console.log("rules: " + rules);
+	var pre_rules = ["Random","Top Rated","Last updated","Added time"],
+		set_rules = [rule1,rule2,rule3,rule4],
+		nums = [num1,num2,num3,num4],
+		new_list_length = 0,
+		index_rules;
 	
 	Item.getAll(null, null, function(err, items){
 		if(err){
 			req.flash('error',err);
 			return res.redirect('back');
 		}
-		if(num1 != 0){
-			for (var i = 0; i < num1; i++) {
-				var index = Math.floor(Math.random() * items.length);
-				var item = items[index];
-				newItemList.push(item);
-				items.splice(index, 1);
-			}
+		for(var i = 0; i < nums.length; i++){
+			new_list_length = new_list_length + parseInt(nums[i]);
 		}
+		if(new_list_length <= items.length){
+			for(var j = 0; j < nums.length; j++){
+				index_rules = pre_rules.indexOf(set_rules[j]);
+				if(index_rules == 0){
+					tempList = items;
+					for (var i = 0; i < num1; i++) {
+						var index = Math.floor(Math.random() * tempList.length);
+						var item = tempList[index];
+						newItemList.push(item);
+						tempList.splice(index, 1);
+					}
+				}
+				if(index_rules == 1){
+					tempList = items;
+					tempList.sort(compareBy("rate"));
+					tempList.reverse();
+					
+					for (var i = 0; i < num2; i++) {
+						var item = tempList[0];
+						newItemList.push(item);
+						tempList.splice(0, 1);
+					}
+				}
+			}
 			req.session.items = newItemList;
 			req.session.listName = listName;
 			req.session.listType = "auto";
 			req.flash('success','Successfully generated!');
 			res.send({"status": 1});
-		});
+		}else{
+			res.send({"status": 0});
+		}
+	});
   });
   
 //==========================save list AJAX=======================================
@@ -804,5 +829,18 @@ app.get('/view-list/:listId', function(req, res){
 	next();
   }
 
+//==========================helper function=======================================
+  function compareBy(key){
+   return function(a,b){
+      if( a[key] > b[key]){
+          return 1;
+      }else if( a[key] < b[key] ){
+          return -1;
+      }
+      return 0;
+   }
+}
+//yourArray.sort( predicatBy("age") );
+//yourArray.sort( predicatBy("name") );
 };
 
