@@ -74,7 +74,7 @@
 							<label class="control-label">Number of items</label>
 						</div>
 						<div class="col-md-2">
-							<input type="text" class="form-control" id="number_items_1" autofocus="autofocus" required="required" maxlength="2" value="10">
+							<input type="text" class="form-control" id="number_items_1" autofocus="autofocus" required="required" maxlength="2" value="3">
 						</div>
 					</div>
 				</div>
@@ -93,7 +93,7 @@
 							<label class="control-label">Number of items</label>
 						</div>
 						<div class="col-md-2">
-							<input type="text" class="form-control" id="number_items_2" autofocus="autofocus" required="required" maxlength="2" value="0">
+							<input type="text" class="form-control" id="number_items_2" autofocus="autofocus" required="required" maxlength="2" value="2">
 						</div>
 					</div>
 				</div>
@@ -163,9 +163,6 @@ $(document).ready(function(){
 		num3 = $("#number_items_3").val();
 		rule4 = $("#rule_4").val(),
 		num4 = $("#number_items_4").val();
-		
-		console.log("rules: "+ rule1 + " " + rule2 + " " + rule3 + " " + rule4);
-		console.log("nums: "+ num1 + " " + num2 + " " + num3 + " " + num4);
 
 	$.post(url,{
 				rule1: rule1, 
@@ -178,7 +175,11 @@ $(document).ready(function(){
 				num4: num4,
 				itemPage: 1
 				},function(data){
-				window.location.href="/";
+				if(data.status == 1){
+					window.location.href="/";
+				}else{
+					alert("Out of items\'s amount limit, Please repick numbers");
+				}
 	});
 
 	});
