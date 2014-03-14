@@ -39,7 +39,6 @@ Item.prototype.save = function(callback) {
 	  addedTime: time,
 	  lastUpdatedTime: time
   };
-//	console.log(item.itemId);
   //open database
   mongodb.open(function (err, db) {
     if (err) {
@@ -120,7 +119,6 @@ Item.getAll = function(userName, listId, callback) {
 	  if(listId){
 		query.listInfo = listId;
 	  }
-	  console.log(query);
       collection.find(query).sort({
 		time: -1
       }).toArray(function (err, items) {
