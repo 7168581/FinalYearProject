@@ -127,7 +127,6 @@ List.getAll = function(userName, callback) {
 };
 //=======update list information=============
 List.prototype.update = function(listName, info, itemIdList, itemNameList, rate, callback) {
-	console.log(info);
   //open database
   mongodb.open(function (err, db) {
     if (err) {
