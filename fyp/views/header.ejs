@@ -79,7 +79,7 @@ $(document).ready(function(){
 		</ul>
 		<% if (user) { %>
 			<p class="navbar-text navbar-right">
-				Signed in as <a href="#" class="navbar-link"><%= user.name %></a> | <a href="/reset" class="navbar-link">Change Password</a>
+				Signed in as <a href="/user/<%= user.name %>" class="navbar-link"><%= user.name %></a> | <a href="/reset" class="navbar-link">Change Password</a>
 			</p>
 		<% } %>
 	</div>

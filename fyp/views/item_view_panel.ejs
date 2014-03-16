@@ -115,7 +115,7 @@
 				<div class="panel-collapse collapse" id="panel_<%= item.itemId %>">
 					<div class="panel-body">
 						<p class="text-muted">
-							<strong>Category:</strong> <%= item.category %>  |  <strong>User name:</strong> <a href="#"><%= item.userName %></a>
+							<strong>Category:</strong> <%= item.category %>  |  <strong>User name:</strong> <a href="/user/<%= item.userName %>"><%= item.userName %></a>
 						</p>
 						<p class="text-muted">
 							<strong>Added:</strong> <%= item.addedTime.minute %>  |  <strong>Last Updated:</strong> <%= item.lastUpdatedTime.minute %>
