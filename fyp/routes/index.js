@@ -14,6 +14,7 @@ module.exports = function(app) {
 	lists: req.session.lists,
 	listName: req.session.listName,
 	listType: req.session.listType,
+//	rates: req.session.rates,
 	success: req.flash('success').toString(),
 	error: req.flash('error').toString()
     });
@@ -485,6 +486,26 @@ app.get('/delete-user/:userName/:userId', function (req, res) {
   });
 });
 
+//==========================lists made by a specific admin=======================================
+  app.get('/user/:userName', adminLogin);
+  app.get('/user/:userName', function (req, res) {
+	Item.getAll(req.params.userName, null, function(err,items){
+		if(err){
+			items = [];
+		}
+		List.getAll(req.params.userName, function(err,lists){
+			if(err){
+				lists = [];
+			}
+			req.session.listName = req.params.userName,
+			req.session.items = items,
+			req.session.lists = lists,
+			req.flash('success','Successfully loaded items and lists made by ' + req.params.userName),
+			res.redirect('/');
+		});
+	});
+  });
+
 //==========================system generate-list AJAX=======================================
   app.post('/generate-list', function (req, res) {
 	var rule1 = req.body.rule1,
@@ -499,7 +520,7 @@ app.get('/delete-user/:userName/:userId', function (req, res) {
 		tempList = [],
 		newItemList = [];
 
-	var pre_rules = ["Random","Top Rated","Last updated","Added time"],
+	var pre_rules = ["Random","Top Rated","Last updated","Lasted Added"],
 		set_rules = [rule1,rule2,rule3,rule4],
 		nums = [num1,num2,num3,num4],
 		new_list_length = 0,
@@ -531,6 +552,25 @@ app.get('/delete-user/:userName/:userId', function (req, res) {
 					tempList.reverse();
 					
 					for (var i = 0; i < num2; i++) {
+						var item = tempList[0];
+						newItemList.push(item);
+						tempList.splice(0, 1);
+					}
+				}
+				if(index_rules == 2){
+					tempList = items;
+					tempList.sort(compareDate("lastUpdatedTime"));
+					for (var i = 0; i < num3; i++) {
+						var item = tempList[0];
+						newItemList.push(item);
+						tempList.splice(0, 1);
+					}
+				}
+				if(index_rules == 3){
+					tempList = items;
+					tempList.sort(compareDate("addedTime"));
+					//tempList.reverse();
+					for (var i = 0; i < num4; i++) {
 						var item = tempList[0];
 						newItemList.push(item);
 						tempList.splice(0, 1);
@@ -840,7 +880,11 @@ app.get('/view-list/:listId', function(req, res){
       return 0;
    }
 }
-//yourArray.sort( predicatBy("age") );
-//yourArray.sort( predicatBy("name") );
+
+	function compareDate(date){
+		return function(a,b){
+			return new Date(b[date]["date"]) - new Date(a[date]["date"]);
+		}
+	}
 };
 
