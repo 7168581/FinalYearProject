@@ -51,7 +51,7 @@
 								<strong>Last updated: </strong> <%= list.lastUpdatedTime.day %>
 							</p>
 							<p class="text-muted">
-								<strong>Rate: <div class="rateit"  id="rateit3" data-rateit-value="<%= list.rate %>" data-rateit-ispreset="true" data-rateit-readonly="true"></div></strong>
+								<strong>Rate: <span class="rateit"  id="rateit3" data-rateit-value="<%= list.rate %>" data-rateit-ispreset="true" data-rateit-readonly="true"></span></strong>
 							</p>
 							<p><strong>Description:</strong></p>
 							<p><%= list.info %></p>
@@ -75,7 +75,7 @@ var list_name;
 var list_info;
 
 $(document).ready(function(){
-	$("#list_accordion .panel-collapse").first().collapse('show');
+//	$("#list_accordion .panel-collapse").first().collapse('show');
 	
 	$("#create_list_confirm_btn").click(function(){
 	var url = "/add-list",
