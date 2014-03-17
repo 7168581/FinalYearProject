@@ -14,7 +14,6 @@ module.exports = function(app) {
 	lists: req.session.lists,
 	listName: req.session.listName,
 	listType: req.session.listType,
-//	rates: req.session.rates,
 	success: req.flash('success').toString(),
 	error: req.flash('error').toString()
     });
@@ -36,7 +35,20 @@ app.get('/all-items', function(req, res){
 		req.session.listName = "All items";
 		req.session.listType = "none";
 		res.redirect('/');
-		});
+	});
+	});
+});
+
+//==========================show all items=======================================
+app.post('/show-rate', function(req, res){
+//show all rates to the homepage
+	var itemId = new ObjectId(req.body.itemId),
+		userId = req.body.userId;
+	Rate.get(itemId, userId, function(err,rate){
+		if(err){
+			rate = 0;
+		}
+		res.send({rating: rate.rating});
 	});
 });
  
@@ -520,7 +532,7 @@ app.get('/delete-user/:userName/:userId', function (req, res) {
 		tempList = [],
 		newItemList = [];
 
-	var pre_rules = ["Random","Top Rated","Last updated","Lasted Added"],
+	var pre_rules = ["Random","Top Rated","Last updated","Last Added"],
 		set_rules = [rule1,rule2,rule3,rule4],
 		nums = [num1,num2,num3,num4],
 		new_list_length = 0,
