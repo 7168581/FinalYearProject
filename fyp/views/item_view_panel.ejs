@@ -14,7 +14,7 @@
 	<div class="scroll-area" data-spy="scroll" data-offset="0">
 		<div class="panel-group" id="item_accordion">
 		<% items.forEach(function (item, index) { %>
-			<div class="panel panel-default" id="single_item">
+			<div class="panel panel-default" id="single_item" onclick="find_rate_function('<%= item.itemId %>', '<%= user.userId %>')">
 				<div class="panel-heading">
 					<h3 class="panel-title">
 						<a href="#panel_<%= item.itemId %>" data-toggle="collapse" data-parent="#item_accordion">
@@ -127,8 +127,9 @@
 							<% }) %>
 						</p>
 						<p class="text-muted">
-							<strong>Rate: <div class="rateit" data-rateit-value="<%= item.rate %>" data-rateit-ispreset="true" data-rateit-readonly="true"></div></strong>
-							| <span class="rateit" id="rateit2" data-id="<%= item.itemId %>" data-rateit-resetable="false"></span> 
+							<strong>Rate: <span class="rateit" data-rateit-value="<%= item.rate %>" data-rateit-ispreset="true" data-rateit-readonly="true"></span></strong>
+							| <span class="rateit" id="rateit2" data-id="<%= item.itemId %>" data-rateit-resetable="false" data-rateit-ispreset="true"></span>
+							<span class="label label-info pull-right" id="rated">0</span>
 						</p>
 						<p><strong>Description:</strong></p>
 						<p><%= item.description %></p>
@@ -140,11 +141,12 @@
 var item_id,
 	item_name,
 	listName,
-	info;
+	info,
+	rate_value = 0;
 
 
 $(document).ready(function(){
-	$("#item_accordion .collapse").first().collapse('show');
+//	$("#item_accordion .collapse").first().collapse('show');
 
 	
 	$("#item_accordion .panel-default").mouseover(function(){
@@ -153,6 +155,9 @@ $(document).ready(function(){
 		$(this).find('#item_dropdown').addClass("hidden");
 	});
 	
+	$("#item_accordion .panel-default").mouseover(function(){
+		$(this).find('#rated').text("You've rated this item: " + rate_value);
+	})
 	
 	$("#list_title").mouseover(function(){
 		$("#list_title_dropdown").removeClass("hidden");
@@ -225,6 +230,16 @@ function select_list_function(listName, listId, itemIdList, itemNameList, rate, 
 				},function(){
 			console.log(item_id + " is added into " + listName);
 			$("#cancel_add_to_list").click();
+	});
+}
+
+function find_rate_function(itemId, userId){
+
+	$.post('/show-rate',{
+			itemId: itemId,
+			userId: userId
+			},function(data){
+			rate_value = data.rating;
 	});
 }
 
