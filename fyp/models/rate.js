@@ -105,7 +105,7 @@ Rate.prototype.update = function(callback) {
       //update rate information in the rate set
       collection.update(
 	{"itemId":rate.itemId, "userId":rate.userId},
-	{$set:{"rating": rate.rating, "lastUpdatedTime": rate.time}},
+	{$set:{"rating": rate.rating, "lastUpdatedTime": time}},
 	{safe: true, upsert: true
       }, function (err) {
         mongodb.close();
