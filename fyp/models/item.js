@@ -132,6 +132,44 @@ Item.getAll = function(userName, listId, callback) {
   });
 };
 
+Item.getLimitNum = function(userName, listId, page, limit, callback) {
+  //open database
+  mongodb.open(function (err, db) {
+    if (err) {
+      return callback(err);
+    }
+    //get the collection of items
+    db.collection('items', function (err, collection) {
+      if (err) {
+        mongodb.close();
+        return callback(err);
+      }
+      //look for a list of items created by a user called 'userName'
+	  var query = {};
+	  if(userName){
+		query.userName = userName;
+	  }
+	  if(listId){
+		query.listInfo = listId;
+	  }
+	  collection.count(query, function (err, total) {
+		  collection.find(query,{
+			skip: (page - 1) * limit,
+			limit: limit
+		  }).sort({
+			time: -1
+		  }).toArray(function (err, items) {
+			mongodb.close();
+			if (err) {
+			  return callback(err);
+			}
+			callback(null, items, total);
+		  });
+		});
+    });
+  });
+};
+
 //====================update an item information================
 Item.prototype.update = function(itemName, keyword, category, description, listInfo, rate, callback) {
 
@@ -178,6 +216,37 @@ Item.prototype.update = function(itemName, keyword, category, description, listI
         }
         callback(null);
       });
+    });
+  });
+};
+
+Item.prototype.multi_update = function(items, listId, callback) {
+
+//open database
+  mongodb.open(function (err, db) {
+    if (err) {
+      return callback(err);
+    }
+    //get the set of items
+    db.collection('items', function (err, collection) {
+      if (err) {
+        mongodb.close();
+        return callback(err);
+      }
+      //update item information in the item set
+	  for(var i = 0; i<items.length; i++){
+		  collection.update(
+			{"itemName":items[i].itemName},
+			{"$addToSet": {"listInfo": listId}, "$set":{"lastUpdatedTime":time}},
+			{safe: true
+			  }, function (err) {
+			mongodb.close();
+			if (err) {
+			  return callback(err);
+			}
+		  });
+		}
+        callback(null);
     });
   });
 };
