@@ -1,6 +1,6 @@
 <div class="col-md-6 col-md-offset-1">
 <div class="center-block text-primary" id="list_title">
-	<h3><%= listName %>
+	<h3><%= titleName %>
 		<% if (listType == "auto") { %>
 			<div class="pull-right btn-group hidden" id="list_title_dropdown">
 				<button type="button" class="btn btn-warning dropdown-toggle btn-xs" data-toggle="dropdown">Action<span class="caret"></span></button>
@@ -14,10 +14,10 @@
 	<div class="scroll-area" data-spy="scroll" data-offset="0">
 		<div class="panel-group" id="item_accordion">
 		<% items.forEach(function (item, index) { %>
-			<div class="panel panel-default" id="single_item" onclick="find_rate_function('<%= item.itemId %>', '<%= user.userId %>')">
+			<div class="panel panel-default" id="single_item">
 				<div class="panel-heading">
 					<h3 class="panel-title">
-						<a href="#panel_<%= item.itemId %>" data-toggle="collapse" data-parent="#item_accordion">
+						<a href="#panel_<%= item.itemId %>" data-toggle="collapse" data-parent="#item_accordion" onclick="find_rate_function('<%= item.itemId %>', '<%= user.userId %>')">
 							<%= item.itemName %>
 						</a>
 						<% if (user.userType == "admin") { %>
@@ -156,7 +156,13 @@ $(document).ready(function(){
 	});
 	
 	$("#item_accordion .panel-default").mouseover(function(){
-		$(this).find('#rated').text("You've rated this item: " + rate_value);
+//	$("#item_accordion .panel-default").dbclick(function(){
+	console.log("before");
+		if(rate_value == 0){
+			$(this).find('#rated').text("You've not rated this item yet");
+		}else{
+			$(this).find('#rated').text("You've rated this item: " + rate_value);
+		}
 	})
 	
 	$("#list_title").mouseover(function(){
@@ -181,6 +187,19 @@ $(document).ready(function(){
 				}
 		});
 	});
+	
+	if('<%= itemFirstPage %>' == 'true'){
+		console.log("it is first page");
+		$("#item_page #first_item_page").addClass("disabled");
+	}else{
+		$("#item_page #first_item_page").removeClass("disabled");
+	}
+	
+	if('<%= itemLastPage %>' == 'true'){
+		$("#item_page #last_item_page").addClass("disabled");
+	}else{
+		$("#item_page #last_item_page").removeClass("disabled");
+	}
 });
 
 function delete_function(itemId, itemName){
@@ -247,14 +266,14 @@ function find_rate_function(itemId, userId){
 		</div>
 	</div>
 	<div class="col-md-6 col-md-offset-3">
-		<ul class="pagination">
-		  <li class="disabled"><a href="#">&laquo;</a></li>
-		  <li class="active"><a href="#">1</a></li>
+		<ul class="pagination" id="item_page">
+		  <li id="first_item_page"><a href="?item_p=<%= item_page-1 %>">&laquo;</a></li>
+		  <li><a href="#">1</a></li>
 		  <li><a href="#">2</a></li>
 		  <li><a href="#">3</a></li>
 		  <li><a href="#">4</a></li>
 		  <li><a href="#">5</a></li>
-		  <li><a href="#">&raquo;</a></li>
+		  <li id="last_item_page"><a href="?item_p=<%= item_page+1 %>">&raquo;</a></li>
 		</ul>
 	</div>
 </div>
