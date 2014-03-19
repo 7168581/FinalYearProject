@@ -125,6 +125,41 @@ List.getAll = function(userName, callback) {
     });
   });
 };
+
+List.getLimitNum = function(userName, page, limit, callback) {
+  //open database
+  mongodb.open(function (err, db) {
+    if (err) {
+      return callback(err);
+    }
+    //get the collection of lists
+    db.collection('lists', function (err, collection) {
+      if (err) {
+        mongodb.close();
+        return callback(err);
+      }
+      //look for a list of lists created by a user called 'userName'
+	  var query = {};
+	  if(userName){
+		query.userName = userName;
+	  }
+	  collection.count(query, function (err, total) {
+		  collection.find(query, {
+			skip: (page - 1)*limit,
+			limit: limit
+		  }).sort({
+			time: -1
+		  }).toArray(function (err, lists) {
+			mongodb.close();
+			if (err) {
+			  return callback(err);
+			}
+			callback(null, lists, total);
+		  });
+		});
+    });
+  });
+};
 //=======update list information=============
 List.prototype.update = function(listName, info, itemIdList, itemNameList, rate, callback) {
   //open database
