@@ -7,48 +7,81 @@ var crypto = require('crypto'),
 
 module.exports = function(app) {
   app.get('/', function (req, res) {
-    res.render('index', {
-	title: 'HomePage',
-	user: req.session.user,
-	items: req.session.items,
-	lists: req.session.lists,
-	listName: req.session.listName,
-	listType: req.session.listType,
-	success: req.flash('success').toString(),
-	error: req.flash('error').toString()
-    });
+  
+	var item_page = req.query.item_p ? parseInt(req.query.item_p):1,
+		list_page = req.query.list_p ? parseInt(req.query.list_p):1,
+		titleName = req.session.titleName,
+		userName = req.session.userName,
+		limit = 10;
+		
+	if(req.session.listId == null){
+		var listId = req.session.listId;
+	}else{
+		var listId = new ObjectId(req.session.listId);
+	}
+  	Item.getLimitNum(userName, listId, item_page, limit, function(err,items,item_total){
+		if(err){
+			items = [];
+		}
+	List.getLimitNum(userName, list_page, limit, function(err,lists,list_total){
+		if(err){
+			lists = [];
+		}
+		if(req.session.listType != "auto"){
+			req.session.items = items;
+		}
+		req.session.lists = lists;
+		req.session.item_page = item_page;
+		req.session.itemFirstPage = (item_page - 1) == 0,
+		req.session.itemLastPage = ((item_page - 1)*limit + req.session.items.length) == item_total,
+		req.session.list_page = list_page;
+		req.session.listFirstPage = (list_page - 1) == 0,
+		req.session.listLastPage = ((list_page - 1)*limit + req.session.lists.length) == list_total,
+  
+		res.render('index', {
+			title: 'HomePage',
+			user: req.session.user,
+			items: req.session.items,
+			lists: req.session.lists,
+			item_page: req.session.item_page,
+			list_page: req.session.list_page,
+			itemFirstPage: req.session.itemFirstPage,
+			itemLastPage: req.session.itemLastPage,
+			listFirstPage: req.session.listFirstPage,
+			listLastPage: req.session.listLastPage,
+			titleName: titleName,
+			listType: req.session.listType,
+			success: req.flash('success').toString(),
+			error: req.flash('error').toString()
+		});
+		});
+	});
  });
  
 //==========================show all items=======================================
 app.get('/all-items', function(req, res){
 //show all items to the homepage
-	Item.getAll(null, null, function(err,items){
-		if(err){
-			items = [];
-		}
-	List.getAll(null, function(err,lists){
-		if(err){
-		lists = [];
-	}
-		req.session.items = items;
-		req.session.lists = lists;
-		req.session.listName = "All items";
-		req.session.listType = "none";
-		res.redirect('/');
-	});
-	});
+	req.session.userName = null;
+	req.session.listId = null;
+	req.session.titleName = "All items";
+	req.session.listType = "none";
+	res.redirect('/');
 });
 
-//==========================show all items=======================================
+//==========================get single rate=======================================
 app.post('/show-rate', function(req, res){
 //show all rates to the homepage
 	var itemId = new ObjectId(req.body.itemId),
 		userId = req.body.userId;
 	Rate.get(itemId, userId, function(err,rate){
 		if(err){
-			rate = 0;
+			rate = null;
 		}
-		res.send({rating: rate.rating});
+		if(rate != null){
+			res.send({rating: rate.rating});
+		}else{
+			res.send({rating: 0});
+		}
 	});
 });
  
@@ -101,7 +134,7 @@ app.post('/show-rate', function(req, res){
 			}
 			req.session.user = user;
 			req.flash('success','Successfully register');
-			res.redirect('/');
+			res.redirect('/all-items');
 		})
 	})
   });
@@ -128,22 +161,9 @@ app.post('/show-rate', function(req, res){
 		req.flash('error', 'Wrong password'); 
 		return res.redirect('/login');
 	}
-	
-	Item.getAll(null, null, function(err,items){
-		if(err){
-		items = [];
-	}
-	List.getAll(null, function(err,lists){
-		if(err){
-		lists = [];
-	}
-	req.session.items = items;
-	req.session.lists = lists;
 	req.session.user = user;
 	req.flash('success', 'Login successfully');
-	res.redirect('/');
-	});
-	});
+	res.redirect('/all-items');
 	});
 });
 
@@ -153,6 +173,7 @@ app.post('/show-rate', function(req, res){
 	req.session.user = null;
 	req.session.items = [];
 	req.session.lists = [];
+	req.session.listType = "none"
 	req.flash('success', 'Logout successfully');
 	res.redirect('/');
   });
@@ -207,7 +228,7 @@ app.post('/show-rate', function(req, res){
 		}
 		req.session.user = user;
 		req.flash('success','Password reset successfully');
-		res.redirect('/');
+		res.redirect('/all-items');
 		});
 	});
   });
@@ -253,14 +274,8 @@ app.post('/show-rate', function(req, res){
 				req.flash('error',err);
 				return res.redirect('/add-item');
 			}
-			Item.getAll(null, null, function(err,items){
-				if(err){
-				items = [];
-			}
-			req.session.items = items;
 			req.flash('success','Successfully added a new item');
 			res.redirect('/add-item');
-		});
 	});
   });
 });
@@ -282,7 +297,6 @@ app.post('/show-rate', function(req, res){
   });
 
 //==========================edit an item=======================================
-
   app.get('/edit-item/:itemId', adminLogin);
   app.get('/edit-item/:itemId', function (req, res) {
 	var itemId = new ObjectId(req.params.itemId);
@@ -326,14 +340,8 @@ app.post('/show-rate', function(req, res){
 				req.flash('error',err);
 				return res.redirect('back');
 			}
-			Item.getAll(null, null, function(err,items){
-				if(err){
-				items = [];
-			}
-			req.session.items = items;
 			req.flash('success','Successfully Edit!');
 			res.redirect('/');
-		});
 	});
   });
   });
@@ -347,14 +355,8 @@ app.get('/delete-item/:itemId', function (req, res) {
       req.flash('error', err); 
       return res.redirect('back');
     }
-	Item.getAll(null, null, function(err,items){
-		if(err){
-		items = [];
-	}
-	req.session.items = items;
     req.flash('success', 'Delete successfully!');
     res.redirect('/');
-  });
   });
 });
 
@@ -459,7 +461,7 @@ app.get('/delete-user/:userName/:userId', function (req, res) {
 			userName: req.session.user.name,
 			userId: req.session.user.userId,
 			info: req.body.info,
-			rate: "0",
+			rate: 0,
 			itemIdList: itemIdList,
 			itemNameList: itemNameList
 		});
@@ -482,17 +484,11 @@ app.get('/delete-user/:userName/:userId', function (req, res) {
 					return res.redirect('/add-list');
 				}
 				req.flash('success','Successfully created a new list');
-				List.getAll(null, function(err,lists){
-					if(err){
-					lists = [];
-				}
-				req.session.lists = lists;
 				if(req.body.webpage == 1){
 					res.send({"status": 2});
 				}else{
 					res.redirect('/add-list');
 				}
-			});
 		});
 		}
   });
@@ -501,21 +497,12 @@ app.get('/delete-user/:userName/:userId', function (req, res) {
 //==========================lists made by a specific admin=======================================
   app.get('/user/:userName', adminLogin);
   app.get('/user/:userName', function (req, res) {
-	Item.getAll(req.params.userName, null, function(err,items){
-		if(err){
-			items = [];
-		}
-		List.getAll(req.params.userName, function(err,lists){
-			if(err){
-				lists = [];
-			}
-			req.session.listName = req.params.userName,
-			req.session.items = items,
-			req.session.lists = lists,
-			req.flash('success','Successfully loaded items and lists made by ' + req.params.userName),
-			res.redirect('/');
-		});
-	});
+	req.session.titleName = req.params.userName,
+	req.flash('success','Successfully loaded items and lists made by ' + req.params.userName),
+	req.session.userName = req.params.userName,
+	req.session.listType = "none",
+	req.session.listId = null;
+	res.redirect('/');
   });
 
 //==========================system generate-list AJAX=======================================
@@ -528,7 +515,7 @@ app.get('/delete-user/:userName/:userId', function (req, res) {
 		num2 = req.body.num2,
 		num3 = req.body.num3,
 		num4 = req.body.num4,
-		listName = "New List",
+		titleName = "New List",
 		tempList = [],
 		newItemList = [];
 
@@ -590,7 +577,7 @@ app.get('/delete-user/:userName/:userId', function (req, res) {
 				}
 			}
 			req.session.items = newItemList;
-			req.session.listName = listName;
+			req.session.titleName = titleName;
 			req.session.listType = "auto";
 			req.flash('success','Successfully generated!');
 			res.send({"status": 1});
@@ -610,11 +597,9 @@ app.get('/delete-user/:userName/:userId', function (req, res) {
 	
 	for (var i = 0; i < items.length; i++) {
 		var item = items[i];
-		console.log("itemId: " + item.itemId);
 		itemIdList.push(item.itemId);
 		itemNameList.push(item.itemName);
 	}
-	console.log("itemIdList: " + itemIdList);
 //new list
 		newList = new List({
 			listName: req.body.listName,
@@ -635,22 +620,31 @@ app.get('/delete-user/:userName/:userId', function (req, res) {
 		}
 //if not in the database
 		if(!list){
-		
 			newList.save(function(err){
 				if(err){
 					req.flash('error',err);
 					return res.redirect('/');
 				}
-				req.flash('success','Successfully saved');
-				List.getAll(null, function(err,lists){
-					if(err){
-					lists = [];
-				}
-					req.session.lists = lists;
+				var newItem = new Item({
+					itemName: null,
+					itemId: null,
+					keyword: null,
+					category: null,
+					description: null,
+					userName: null,
+					userId: null,
+					listInfo: null,
+					rate: null
+				});
+				newItem.multi_update(items, listId, function(err){
+					req.flash('success','Successfully saved');
+					req.session.listType = "none";
+					req.session.userName = null;
+					req.session.listId = listId;
+					req.session.titleName = newList.listName;
 					res.send({"status": 2});
 				});
 			});
-			
 		}
   });
 });
@@ -664,14 +658,13 @@ app.get('/delete-list/:listId', function (req, res) {
       req.flash('error', err); 
       return res.redirect('back');
     }
-	List.getAll(null, function(err,lists){
-		if(err){
-			lists = [];
-		}
-	req.session.lists = lists;
+	req.session.userName = null;
     req.flash('success', 'Delete successfully!');
-    res.redirect('/');
-  });
+	if(listId == req.session.listId){
+		res.redirect('/all-items');
+	}else{
+		res.redirect('/');
+	}
   });
 });
 
@@ -741,7 +734,7 @@ app.post('/add-rate', function(req, res){
 //==========================add list AJAX=======================================
 app.post('/add-to-list', function(req, res){
 	var listName = req.body.listName,
-		listId = req.body.listId,
+		listId = new ObjectId(req.body.listId),
 		userName = req.session.user.userName,
 		userId = req.session.user.userId,
 		itemIdList = req.body.itemIdList,
@@ -818,14 +811,8 @@ app.post('/add-to-list', function(req, res){
 			req.flash('error',err);
 			return res.redirect('back');
 		}
-		List.getAll(null, function(err,lists){
-			if(err){
-				lists = [];
-			}
-			req.session.lists = lists;
-			req.flash('success','Successfully Edit!');
-			res.send({"status": 1});
-		});
+		req.flash('success','Successfully Edit!');
+		res.send({"status": 1});
 	});
   });
 
@@ -833,20 +820,15 @@ app.post('/add-to-list', function(req, res){
 app.get('/view-list/:listId', function(req, res){
 	var listId = req.params.listId;
 	
-//get all items in a selected list
-	Item.getAll(null, listId, function(err,items){
-		if(err){
-			items = [];
-		}
 //get the selected list' listName
-		var list_id = new ObjectId(listId);
-		List.get(null, list_id, function(err, list){
-			req.session.items = items;
-			req.session.listName = list.listName;
-			req.session.listType = "none";
-			req.flash('success','selected list loading successfully');
-			res.redirect('/');
-		});
+	var list_id = new ObjectId(listId);
+	List.get(null, list_id, function(err, list){
+		req.session.listId = list_id;
+		req.session.titleName = list.listName;
+		req.session.userName = null;
+		req.session.listType = "none";
+		req.flash('success','selected list loading successfully');
+		res.redirect('/');
 	});
 });
 //==========================permission function=======================================
