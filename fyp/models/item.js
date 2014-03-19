@@ -18,7 +18,8 @@ function Item(item) {
   this.description = item.description;
   this.userName = item.userName;
   this.userId = item.userId;
-  this.listInfo = item.listInfo;
+  this.listIdList = item.listIdList;
+  this.listNameList = item.listNameList;
   this.rate = item.rate;
 };
 
@@ -34,7 +35,8 @@ Item.prototype.save = function(callback) {
 	  description: this.description,
 	  userName: this.userName,
 	  userId: this.userId,
-	  listInfo: this.listInfo,
+	  listIdList: this.listIdList,
+	  listNameList: this.listNameList,
 	  rate: this.rate,
 	  addedTime: time,
 	  lastUpdatedTime: time
@@ -117,7 +119,7 @@ Item.getAll = function(userName, listId, callback) {
 		query.userName = userName;
 	  }
 	  if(listId){
-		query.listInfo = listId;
+		query.listIdList = listId;
 	  }
       collection.find(query).sort({
 		time: -1
@@ -150,7 +152,7 @@ Item.getLimitNum = function(userName, listId, page, limit, callback) {
 		query.userName = userName;
 	  }
 	  if(listId){
-		query.listInfo = listId;
+		query.listIdList = listId;
 	  }
 	  collection.count(query, function (err, total) {
 		  collection.find(query,{
@@ -171,7 +173,7 @@ Item.getLimitNum = function(userName, listId, page, limit, callback) {
 };
 
 //====================update an item information================
-Item.prototype.update = function(itemName, keyword, category, description, listInfo, rate, callback) {
+Item.prototype.update = function(itemName, keyword, category, description, listIdList, listNameList, rate, callback) {
 
 //open database
   mongodb.open(function (err, db) {
@@ -198,8 +200,11 @@ Item.prototype.update = function(itemName, keyword, category, description, listI
 	  if(description){
 		query.description = description;
 	  }
-	  if(listInfo){
-		query.listInfo = listInfo;
+	  if(listIdList){
+		query.listIdList = listIdList;
+	  }
+	  if(listNameList){
+		query.listNameList = listNameList;
 	  }
 	  if(rate){
 		query.rate = rate;
@@ -220,7 +225,7 @@ Item.prototype.update = function(itemName, keyword, category, description, listI
   });
 };
 
-Item.prototype.multi_update = function(items, listId, callback) {
+Item.prototype.multi_update = function(items, listId, listName, callback) {
 
 //open database
   mongodb.open(function (err, db) {
@@ -237,7 +242,7 @@ Item.prototype.multi_update = function(items, listId, callback) {
 	  for(var i = 0; i<items.length; i++){
 		  collection.update(
 			{"itemName":items[i].itemName},
-			{"$addToSet": {"listInfo": listId}, "$set":{"lastUpdatedTime":time}},
+			{"$addToSet": {"listIdList": listId, "listNameList": listName}, "$set":{"lastUpdatedTime":time}},
 			{safe: true
 			  }, function (err) {
 			mongodb.close();

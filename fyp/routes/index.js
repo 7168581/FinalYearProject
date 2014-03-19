@@ -247,7 +247,8 @@ app.post('/show-rate', function(req, res){
   app.post('/add-item', function (req, res) {
 //produce itemId
 	var itemId = new ObjectId();
-	var listInfo = new Array();
+	var listNameList = new Array(),
+		listIdList = new Array();
 //new item
 	var	keyword = [req.body.keyword_1,req.body.keyword_2,req.body.keyword_3,req.body.keyword_4],
 		newItem = new Item({
@@ -258,7 +259,8 @@ app.post('/show-rate', function(req, res){
 			description: req.body.description,
 			userName: req.session.user.name,
 			userId: req.session.user.userId,
-			listInfo: listInfo,
+			listNameList: listNameList,
+			listIdList: listIdList,
 			rate: "0"
 		});
 
@@ -332,10 +334,11 @@ app.post('/show-rate', function(req, res){
 			description: req.body.description,
 			userName: item.userName,
 			userId: item.userId,
-			listInfo: item.listInfo,
+			listNameList: item.listNameList,
+			listIdList: item.listIdList,
 			rate: item.rate
 		});
-		editItem.update(item.itemName, keyword, req.body.category, req.body.description, null, null, function(err){
+		editItem.update(item.itemName, keyword, req.body.category, req.body.description, null, null, null, function(err){
 			if(err){
 				req.flash('error',err);
 				return res.redirect('back');
@@ -633,10 +636,11 @@ app.get('/delete-user/:userName/:userId', function (req, res) {
 					description: null,
 					userName: null,
 					userId: null,
-					listInfo: null,
+					listNameList: null,
+					listIdList: null,
 					rate: null
 				});
-				newItem.multi_update(items, listId, function(err){
+				newItem.multi_update(items, listId, newList.listName, function(err){
 					req.flash('success','Successfully saved');
 					req.session.listType = "none";
 					req.session.userName = null;
@@ -714,10 +718,11 @@ app.post('/add-rate', function(req, res){
 				description: item.description,
 				userName: item.userName,
 				userId: item.userId,
-				listInfo: item.listInfo,
+				listNameList: item.listNameList,
+				listIdList: item.listIdList,
 				rate: rate
 			});
-			ratedItem.update(item.itemName, null, null, null, null, rate, function(err){
+			ratedItem.update(item.itemName, null, null, null, null, null, rate, function(err){
 			if(err){
 				req.flash('error',err);
 				return res.redirect('back');
@@ -766,8 +771,10 @@ app.post('/add-to-list', function(req, res){
 			req.flash('error', err);
 			return res.redirect('back');
 		}
-			var listInfo = item.listInfo;
-			listInfo.push(listId);
+			var listNameList = item.listNameList,
+				listIdList = item.listIdList;
+			listIdList.push(listId);
+			listNameList.push(listName);
 			var newAddedItem = new Item({
 				itemName: item.itemName,
 				itemId: item.itemId,
@@ -776,10 +783,11 @@ app.post('/add-to-list', function(req, res){
 				description: item.description,
 				userName: item.userName,
 				userId: item.userId,
-				listInfo: listInfo,
+				listIdList: listIdList,
+				listNameList: listNameList,
 				rate: item.rate
 			});
-				newAddedItem.update(item.itemName, null, null, null, listInfo, null, function(err){
+				newAddedItem.update(item.itemName, null, null, null, listIdList, listNameList, null, function(err){
 				if(err){
 					req.flash('error',err);
 					return res.redirect('back');
