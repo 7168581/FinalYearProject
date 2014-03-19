@@ -114,6 +114,41 @@ User.getAll = function(name, callback) {
   });
 };
 
+User.getLimitNum = function(name, page, limit, callback) {
+  //open database
+  mongodb.open(function (err, db) {
+    if (err) {
+      return callback(err);
+    }
+    //get the collection of users
+    db.collection('users', function (err, collection) {
+      if (err) {
+        mongodb.close();
+        return callback(err);
+      }
+      //look for a list of users
+	  var query = {};
+	  if(name){
+		query.name = name;
+	  }
+	  collection.count(query, function (err, total) {
+		  collection.find(query, {
+			  skip: (page - 1)*limit,
+			  limit: limit
+		  }).sort({
+			time: -1
+		  }).toArray(function (err, users) {
+			mongodb.close();
+			if (err) {
+			  return callback(err);
+			}
+			callback(null, users, total);
+		  });
+		});
+    });
+  });
+};
+
 //====================update a single user information================
 User.prototype.update = function(name, userId, password, email, userType, callback) {
   //open database
