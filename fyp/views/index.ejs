@@ -4,10 +4,6 @@
 <h1><%= title %></h1>
 </header>
 
-<span class="alert alert-warning" id="warning_alert">
-		test
-</span>
-
 <div class="jumbotron">
 <% if (!user) { %>
 	<h2>
@@ -20,11 +16,24 @@
 <% } %>
 	<form role="form">
 		<div class="form-group">
-			<div class="input-group col-lg-6 col-md-6 col-md-offset-3">
-				<input type="text" class="form-control">
-				<span class="input-group-btn">
-					<button class="btn btn-default" type="button">Go!</button>
-				</span>
+			<div class="row">
+				<div class="col-md-7 col-md-offset-1">
+					<input type="text" class="form-control" id="search_words">
+				</div>
+				<div class="col-md-2">
+					<select class="form-control" id="search_rule" data-style="btn-success">
+						<option>All items</option>
+						<option>Item title</option>
+						<option>Category</option>
+						<option>Keyword</option>
+						<option>Item description</option>
+						<option>User name</option>
+						<option>List title</option>
+					</select>
+				</div>
+				<div class="col-md-1">
+					<button class="btn btn-default" type="button" id="search_button">Go!</button>
+				</div>
 			</div>
 		</div>
 <% if (user) { %>
@@ -40,6 +49,7 @@
 <% } %>
 	</form>
 </div>
+
 <% if (user) { %>
 <div class="container">
 	<div class="row-fluid">
@@ -164,25 +174,41 @@ $(document).ready(function(){
 		rule4 = $("#rule_4").val(),
 		num4 = $("#number_items_4").val();
 
-	$.post(url,{
-				rule1: rule1, 
-				rule2: rule2, 
-				rule3: rule3, 
-				rule4: rule4, 
-				num1: num1,
-				num2: num2,
-				num3: num3,
-				num4: num4,
-				itemPage: 1
-				},function(data){
-				if(data.status == 1){
-					window.location.href="/";
-				}else{
-					alert("Out of items\'s amount limit, Please repick numbers");
-				}
+		$.post(url,{
+					rule1: rule1, 
+					rule2: rule2, 
+					rule3: rule3, 
+					rule4: rule4, 
+					num1: num1,
+					num2: num2,
+					num3: num3,
+					num4: num4,
+					itemPage: 1
+					},function(data){
+					if(data.status == 1){
+						window.location.href="/";
+					}else{
+						alert("Out of items\'s amount limit, Please repick numbers");
+					}
+		});
 	});
 
+	$("#search_button").click(function(){
+		var url = "/search-items",
+			rule = $("#search_rule").val(),
+			search_words = $("#search_words").val();
+		$.post(url,{
+					search_rule: rule,
+					search_word: search_words
+					},function(data){
+					if(data.status == 1){
+						window.location.href="/";
+					}else{
+						alert("Out of items\'s amount limit, Please repick numbers");
+					}
+		});
 	});
+
 });
 
 </script>
