@@ -4,6 +4,9 @@ var crypto = require('crypto'),
 	ObjectId = require('mongodb').ObjectID,
 	List = require('../models/list.js'),
 	Rate = require('../models/rate.js');
+	
+var fields = {},
+	listName = null;
 
 module.exports = function(app) {
   app.get('/', function (req, res) {
@@ -19,11 +22,12 @@ module.exports = function(app) {
 	}else{
 		var listId = new ObjectId(req.session.listId);
 	}
-  	Item.getLimitNum(userName, listId, item_page, limit, function(err,items,item_total){
+
+  	Item.getLimitNum(userName, listId, fields, item_page, limit, function(err,items,item_total){
 		if(err){
 			items = [];
 		}
-	List.getLimitNum(userName, list_page, limit, function(err,lists,list_total){
+	List.getLimitNum(userName, listName, list_page, limit, function(err,lists,list_total){
 		if(err){
 			lists = [];
 		}
@@ -65,6 +69,8 @@ app.get('/all-items', function(req, res){
 	req.session.listId = null;
 	req.session.titleName = "All items";
 	req.session.listType = "none";
+	fields = {};
+	listName = null;
 	res.redirect('/');
 });
 
@@ -505,16 +511,55 @@ app.get('/delete-user/:userName/:userId', function (req, res) {
 	req.session.userName = req.params.userName,
 	req.session.listType = "none",
 	req.session.listId = null;
+	fields = {};
+	listName = null;
 	res.redirect('/');
   });
 
+//==========================search items AJAX=======================================
+  app.post('/search-items', function (req, res) {
+	var search_rule = req.body.search_rule,
+		search_word = req.body.search_word;
+//	var fields = {};
+	var regExp = new RegExp(search_word, 'i');
+	if(search_rule == "All items"){
+		var temp_array = [{"itemName": regExp},
+						{"category": regExp},
+						{"keyword": regExp},
+						{"description": regExp},
+//						{"itemName": regExp},
+						{"userName": regExp}
+						];
+		fields = {"$or": temp_array};
+	}else if(search_rule == "Item title"){
+		fields.itemName = regExp;
+	}else if(search_rule == "Category"){
+		fields.category = regExp;
+	}else if(search_rule == "Keyword"){
+		fields.keyword = regExp;
+	}else if(search_rule == "User name"){
+		fields.userName = regExp;
+	}else if(search_rule == "Item description"){
+		fields.description = regExp;
+	}else if(search_rule == "List title"){
+		listName = regExp;
+	}
+	console.log("fields: "+fields);
+	console.log("fields: "+JSON.stringify(fields));
+	req.session.titleName = "Search for " + search_rule + " contains \"" + search_word +"\"";
+	req.session.listType = "none";
+	req.session.userName = null;
+	req.session.listId = null;
+	res.send({"status": 1});
+});
+  
 //==========================system generate-list AJAX=======================================
   app.post('/generate-list', function (req, res) {
 	var rule1 = req.body.rule1,
 		rule2 = req.body.rule2,
 		rule3 = req.body.rule3,
 		rule4 = req.body.rule4,
-		num1 = req.body.num1;
+		num1 = req.body.num1,
 		num2 = req.body.num2,
 		num3 = req.body.num3,
 		num4 = req.body.num4,
@@ -582,6 +627,10 @@ app.get('/delete-user/:userName/:userId', function (req, res) {
 			req.session.items = newItemList;
 			req.session.titleName = titleName;
 			req.session.listType = "auto";
+			fields = {};
+			listName = null;
+			req.session.userName = null;
+			req.session.listId = null;
 			req.flash('success','Successfully generated!');
 			res.send({"status": 1});
 		}else{
@@ -646,6 +695,8 @@ app.get('/delete-user/:userName/:userId', function (req, res) {
 					req.session.userName = null;
 					req.session.listId = listId;
 					req.session.titleName = newList.listName;
+					fields = {};
+					listName = null;
 					res.send({"status": 2});
 				});
 			});
@@ -835,6 +886,8 @@ app.get('/view-list/:listId', function(req, res){
 		req.session.titleName = list.listName;
 		req.session.userName = null;
 		req.session.listType = "none";
+		fields = {};
+		listName = null;
 		req.flash('success','selected list loading successfully');
 		res.redirect('/');
 	});
