@@ -156,8 +156,6 @@ $(document).ready(function(){
 	});
 	
 	$("#item_accordion .panel-default").mouseover(function(){
-//	$("#item_accordion .panel-default").dbclick(function(){
-	console.log("before");
 		if(rate_value == 0){
 			$(this).find('#rated').text("You've not rated this item yet");
 		}else{
@@ -189,7 +187,6 @@ $(document).ready(function(){
 	});
 	
 	if('<%= itemFirstPage %>' == 'true'){
-		console.log("it is first page");
 		$("#item_page #first_item_page").addClass("disabled");
 	}else{
 		$("#item_page #first_item_page").removeClass("disabled");
@@ -219,7 +216,7 @@ $('#item_accordion .rateit').bind('rated', function(event, value) {
 	
 	var url_1 = "/add-rate";
 	$.post(url_1,{rating: rate_value, itemId: rated_itemId},function(data){
-			console.log('value saved as' + value);
+			alert('Rated successfully as: ' + value);
 	});
 });
 
@@ -236,7 +233,6 @@ function save_list_function(){
 
 function select_list_function(listName, listId, itemIdList, itemNameList, rate, info){
 	var url = "/add-to-list";
-	console.log(item_id);
 	$.post(url,{
 				listName: listName,
 				listId: listId,
@@ -247,7 +243,6 @@ function select_list_function(listName, listId, itemIdList, itemNameList, rate, 
 				itemId: item_id,
 				itemName: item_name
 				},function(){
-			console.log(item_id + " is added into " + listName);
 			$("#cancel_add_to_list").click();
 	});
 }

@@ -86,7 +86,6 @@ $(document).ready(function(){
 			if(data.status == 1){
 				alert("List already exist");
 			}
-			console.log(data.status);
 			if(data.status == 2){
 				window.location.href="/";
 			}
@@ -94,13 +93,11 @@ $(document).ready(function(){
 	});
 	
 	$("#edit_list_confirm_btn").click(function(){
-	var url = "/edit-list";
-	list_info = $("#edit_info").val();
-	console.log("panel --> listName " + list_name);
-	console.log("panel --> info " + list_info);
-	$.post(url,{listName: list_name, info: list_info, webpage: 1},function(data){
-		window.location.href="/";
-		});
+		var url = "/edit-list";
+		list_info = $("#edit_info").val();
+		$.post(url,{listName: list_name, info: list_info, webpage: 1},function(data){
+			window.location.href="/";
+			});
 	});
 	
 	$("#list_accordion .panel-default").mouseover(function(){
@@ -127,9 +124,8 @@ $(document).ready(function(){
 /***
 function view_items_function(listId){
 	var url = "/view-list/" + listId;
-	console.log(listId);
 	$.get(url, function(){
-			console.log(listId + " has shown on the left");
+	
 	});
 };
 ***/ 
