@@ -126,7 +126,7 @@ List.getAll = function(userName, callback) {
   });
 };
 
-List.getLimitNum = function(userName, page, limit, callback) {
+List.getLimitNum = function(userName, listName, page, limit, callback) {
   //open database
   mongodb.open(function (err, db) {
     if (err) {
@@ -142,6 +142,9 @@ List.getLimitNum = function(userName, page, limit, callback) {
 	  var query = {};
 	  if(userName){
 		query.userName = userName;
+	  }
+	  if(listName){
+		query.listName = listName;
 	  }
 	  collection.count(query, function (err, total) {
 		  collection.find(query, {
