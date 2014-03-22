@@ -214,7 +214,7 @@ $('#item_accordion .rateit').bind('rated', function(event, value) {
 	var rate_value = value;
 	var rated_itemId = ri.data('id');
 	
-	var url_1 = "/add-rate";
+	var url_1 = "/add-item-rate";
 	$.post(url_1,{rating: rate_value, itemId: rated_itemId},function(data){
 			alert('Rated successfully as: ' + value);
 	});
