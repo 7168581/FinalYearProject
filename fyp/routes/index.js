@@ -77,9 +77,10 @@ app.get('/all-items', function(req, res){
 //==========================get single rate=======================================
 app.post('/show-rate', function(req, res){
 //show all rates to the homepage
-	var itemId = new ObjectId(req.body.itemId),
+	var itemId = req.body.itemId,
+		listId = req.body.listId,
 		userId = req.body.userId;
-	Rate.get(itemId, userId, function(err,rate){
+	Rate.get(itemId, null, userId, function(err,rate){
 		if(err){
 			rate = null;
 		}
@@ -723,8 +724,8 @@ app.get('/delete-list/:listId', function (req, res) {
   });
 });
 
-//==========================add rate AJAX=======================================
-app.post('/add-rate', function(req, res){
+//==========================add item rate AJAX=======================================
+app.post('/add-item-rate', function(req, res){
 	var userId = req.session.user.userId,
 		rating = req.body.rating,
 		itemId = new ObjectId(req.body.itemId),
@@ -733,6 +734,7 @@ app.post('/add-rate', function(req, res){
 	
 	var newRate = new Rate({
 		itemId: itemId,
+		listId: null,
 		userId: userId,
 		rating: rating
 	});
@@ -742,7 +744,7 @@ app.post('/add-rate', function(req, res){
 			req.flash('error',err);
 		}
 //get average value of a selected item and update to database.
-	Rate.getItemRate(itemId, function(err, rates){
+	Rate.getAllRate(itemId, null, function(err, rates){
 	if(err){
 		req.flash('error', err);
 		rates = [];
@@ -774,6 +776,69 @@ app.post('/add-rate', function(req, res){
 				rate: rate
 			});
 			ratedItem.update(item.itemName, null, null, null, null, null, rate, function(err){
+			if(err){
+				req.flash('error',err);
+				return res.redirect('back');
+			}
+			req.flash('success','Successfully rate it!');
+			res.redirect('/');
+			});
+		}
+    });
+  });
+});
+});
+
+//==========================add list rate AJAX=======================================
+app.post('/add-list-rate', function(req, res){
+	var userId = req.session.user.userId,
+		rating = req.body.rating,
+		listId = req.body.listId,
+		length = 1,
+		rate = 0;
+	
+	var newRate = new Rate({
+		itemId: null,
+		listId: listId,
+		userId: userId,
+		rating: rating
+	});
+//store value of rating to database
+	newRate.update(null, listId, userId, rating, function(err){
+		if(err){
+			req.flash('error',err);
+		}
+//get average value of a selected list and update to database.
+	Rate.getAllRate(null, listId, function(err, rates){
+	if(err){
+		req.flash('error', err);
+		rates = [];
+	}
+	length = rates.length;
+	list_id = new ObjectId(listId);
+	List.get(null, list_id, function(err, list){
+		if(err){
+			req.flash('error', err);
+			return res.redirect('back');
+		}
+		if(!list){
+			req.flash('error','List not exist');
+			return res.redirect('/');
+		}
+		if(length != 0){
+			rate = list.rate;
+			rate = (rate * (length - 1) + parseFloat(rating))/length;
+			var ratedList = new List({
+				listName: list.listName,
+				listId: list.listId,
+				userName: list.userName,
+				userId: list.userId,
+				itemNameList: list.itemNameList,
+				itemIdList: list.itemIdList,
+				rate: rate,
+				info: list.info
+			});
+			ratedList.update(list.listName, null, null, null, rate, function(err){
 			if(err){
 				req.flash('error',err);
 				return res.redirect('back');
