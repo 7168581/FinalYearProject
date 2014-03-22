@@ -52,6 +52,8 @@
 							</p>
 							<p class="text-muted">
 								<strong>Rate: <span class="rateit"  id="rateit3" data-rateit-value="<%= list.rate %>" data-rateit-ispreset="true" data-rateit-readonly="true"></span></strong>
+								| <span class="rateit" id="list_rateit" data-id="<%= list.listId %>" data-rateit-resetable="false" data-rateit-ispreset="true"></span>
+								<span class="label label-info pull-right" id="list_rated">0</span>
 							</p>
 							<p><strong>Description:</strong></p>
 							<p><%= list.info %></p>
@@ -146,6 +148,21 @@ $("#delete_list_confirm_btn").click(function(){
 	var url = "/delete-list/" + list_id;
 	window.location.href=url;
 });
+
+
+$('#list_accordion .rateit').bind('rated', function(event, value) {
+	var list_panel = $(this);
+	var list_rate_value = value;
+	var rated_listId = list_panel.data('id');
+	
+	var url_1 = "/add-list-rate";
+	$.post(url_1,{rating: list_rate_value, listId: rated_listId},function(data){
+			alert('Rated successfully as: ' + value);
+	});
+});
+
+$("#list_accordion .rateit").bind('over', function (event,value) { $(this).attr('title', value); });
+
 </script>
 			</div>
 		</div>
