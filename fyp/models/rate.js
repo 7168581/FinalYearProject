@@ -12,6 +12,7 @@ var time = {
 
 function Rate(rate) {
   this.itemId = rate.itemId;
+  this.listId = rate.listId;
   this.userId = rate.userId;
   this.rating = rate.rating;
 };
@@ -19,7 +20,7 @@ function Rate(rate) {
 module.exports = Rate;
 
 //====================get a single rate information================
-Rate.get = function(itemId, userId, callback) {
+Rate.get = function(itemId, listId, userId, callback) {
   //open database
   mongodb.open(function (err, db) {
     if (err) {
@@ -35,6 +36,9 @@ Rate.get = function(itemId, userId, callback) {
 	  var query = {};
 	  if(itemId){
 		query.itemId = itemId;
+	  }
+	  if(listId){
+		query.listId = listId;
 	  }
 	  if(userId){
 		query.userId = userId;
@@ -52,7 +56,7 @@ Rate.get = function(itemId, userId, callback) {
 
 //====================get all rate values of an item information================
 
-Rate.getItemRate = function(itemId, callback) {
+Rate.getAllRate = function(itemId, listId, callback) {
   //open database
   mongodb.open(function (err, db) {
     if (err) {
@@ -69,6 +73,9 @@ Rate.getItemRate = function(itemId, callback) {
 	  if(itemId){
 		query.itemId = itemId;
 	  }
+	  if(listId){
+		query.listId = listId;
+	  }
       collection.find(query).sort({
 		time: -1
       }).toArray(function (err, rates) {
@@ -83,14 +90,8 @@ Rate.getItemRate = function(itemId, callback) {
 };
 
 //====================update an rate information================
-Rate.prototype.update = function(callback) {
+Rate.prototype.update = function(itemId, listId, userId, rating, callback) {
 
-  var rate = {
-	  itemId: this.itemId,
-	  userId: this.userId,
-	  rating: this.rating,
-	  lastUpdatedTime: time
-  };
   //open database
   mongodb.open(function (err, db) {
     if (err) {
@@ -102,10 +103,19 @@ Rate.prototype.update = function(callback) {
         mongodb.close();
         return callback(err);
       }
+	  var query = {};
+	  if(itemId){
+		query.itemId = itemId;
+	  }
+	  if(listId){
+		query.listId = listId;
+	  }
+	  if(userId){
+		query.userId = userId;
+	  }
       //update rate information in the rate set
-      collection.update(
-	{"itemId":rate.itemId, "userId":rate.userId},
-	{$set:{"rating": rate.rating, "lastUpdatedTime": time}},
+      collection.update(query,
+	{$set:{"rating": rating, "lastUpdatedTime": time}},
 	{safe: true, upsert: true
       }, function (err) {
         mongodb.close();
