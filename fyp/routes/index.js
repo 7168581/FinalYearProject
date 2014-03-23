@@ -639,6 +639,86 @@ app.get('/remove-user/:userName/:userId', function (req, res) {
 		}
 	});
   });
+
+//==========================system generate-list AJAX (new version)=======================================
+  app.post('/generate-list-by-rule', function (req, res) {
+	var selected_rules = req.body.selected_rules,
+		selected_nums = req.body.selected_nums,
+		titleName = "New List",
+		tempList = [],
+		newItemList = [];
+
+	var pre_rules = ["Random","Top Rated","Last updated","Last Added"],
+		new_list_length = 0,
+		index_rules;
+	
+	Item.getAll(null, null, function(err, items){
+		if(err){
+			req.flash('error',err);
+			return res.redirect('back');
+		}
+		for(var i = 0; i < selected_nums.length; i++){
+			new_list_length = new_list_length + parseInt(selected_nums[i]);
+		}
+		if(new_list_length <= items.length){
+			for(var j = 0; j < selected_nums.length; j++){
+				index_rules = pre_rules.indexOf(selected_rules[j]);
+				if(index_rules == 0){
+					tempList = items;
+					for (var i = 0; i < selected_nums[j]; i++) {
+						var index = Math.floor(Math.random() * tempList.length);
+						var item = tempList[index];
+						newItemList.push(item);
+						tempList.splice(index, 1);
+					}
+				}
+				if(index_rules == 1){
+					tempList = items;
+					tempList.sort(compareBy("rate"));
+					tempList.reverse();
+					
+					for (var i = 0; i < selected_nums[j]; i++) {
+						var item = tempList[0];
+						newItemList.push(item);
+						tempList.splice(0, 1);
+					}
+				}
+				if(index_rules == 2){
+					tempList = items;
+					tempList.sort(compareDate("lastUpdatedTime"));
+					tempList.reverse();
+					for (var i = 0; i < selected_nums[j]; i++) {
+						var item = tempList[0];
+						newItemList.push(item);
+						tempList.splice(0, 1);
+					}
+				}
+				if(index_rules == 3){
+					tempList = items;
+					tempList.sort(compareDate("addedTime"));
+					tempList.reverse();
+					for (var i = 0; i < selected_nums[j]; i++) {
+						var item = tempList[0];
+						newItemList.push(item);
+						tempList.splice(0, 1);
+					}
+				}
+			}
+			req.session.items = newItemList;
+			req.session.titleName = titleName;
+			req.session.listType = "auto";
+			fields = {};
+			listName = null;
+			req.session.userName = null;
+			req.session.listId = null;
+			req.flash('success','Successfully generated!');
+			res.send({"status": 1});
+		}else{
+			res.send({"status": 0});
+		}
+	});
+  });
+  
   
 //==========================save list AJAX=======================================
   app.post('/save-list', function (req, res) {
@@ -739,12 +819,12 @@ app.post('/add-item-rate', function(req, res){
 		rating: rating
 	});
 //store value of rating to database
-	newRate.update(function(err){
+	newRate.update(req.body.itemId, null, userId, rating, function(err){
 		if(err){
 			req.flash('error',err);
 		}
 //get average value of a selected item and update to database.
-	Rate.getAllRate(itemId, null, function(err, rates){
+	Rate.getAllRate(req.body.itemId, null, function(err, rates){
 	if(err){
 		req.flash('error', err);
 		rates = [];
