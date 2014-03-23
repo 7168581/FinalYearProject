@@ -18,25 +18,25 @@
 									<ul class="dropdown-menu" role="menu">
 										<li><a href="/view-list/<%= list.listId %>">View</a></li>
 										<li><a href="#edit_list_modal" data-toggle="modal" onclick="edit_list_function('<%= list.listName %>', '<%= list.info %>')">Edit</a></li>
-										<li><a href="#delete_list_modal" data-toggle="modal" onclick="delete_list_function('<%= list.listId %>', '<%= list.listName %>')" id="delete_list">Delete</a></li>
+										<li><a href="#remove_list_modal" data-toggle="modal" onclick="remove_list_function('<%= list.listId %>', '<%= list.listName %>')" id="remove_list">remove</a></li>
 									</ul>
 								</div>
 							<% } %>
 						</h3>
-<!--This is delete_list modal-->
-						<div class="modal fade" id="delete_list_modal" tabindex="-1" role="dialog" aria-labelledby="deleteLabel" aria-hidden="true">
+<!--This is remove_list modal-->
+						<div class="modal fade" id="remove_list_modal" tabindex="-1" role="dialog" aria-labelledby="removeLabel" aria-hidden="true">
 							<div class="modal-dialog">
 								<div class="modal-content">
 									<div class="modal-header">
 										<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-										<h3>Comfirm Delete</h3>
+										<h3>Comfirm remove</h3>
 									</div>
 									<div class="modal-body">
-										<p id="delete_list_text">Are you sure you want to delete this list</p>
+										<p id="remove_list_text">Are you sure you want to remove this list</p>
 									</div>
 									<div class="modal-footer">
 										<a class="btn" data-dismiss="modal">Cancel</a>
-										<a class="btn btn-primary" name="delete-btn" id="delete_list_confirm_btn">Delete</a>
+										<a class="btn btn-primary" name="remove-btn" id="remove_list_confirm_btn">remove</a>
 									</div>
 								</div>
 							</div>
@@ -139,13 +139,13 @@ function edit_list_function(listName, info){
 	$("#edit_info").val(info);
 }
 
-function delete_list_function(listId, listName){
+function remove_list_function(listId, listName){
 	list_id = listId;
-	$("#delete_list_text").text("Are you sure you want to delete \"" +listName + "\"?");
+	$("#remove_list_text").text("Are you sure you want to remove \"" +listName + "\"?");
 }
 
-$("#delete_list_confirm_btn").click(function(){
-	var url = "/delete-list/" + list_id;
+$("#remove_list_confirm_btn").click(function(){
+	var url = "/remove-list/" + list_id;
 	window.location.href=url;
 });
 
@@ -176,7 +176,7 @@ $("#list_accordion .rateit").bind('over', function (event,value) { $(this).attr(
 
 <!--This is create_list modal-->
 	
-<div class="modal fade" id="create_list_modal" tabindex="-1" role="dialog" aria-labelledby="deleteLabel" aria-hidden="true">
+<div class="modal fade" id="create_list_modal" tabindex="-1" role="dialog" aria-labelledby="removeLabel" aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -215,7 +215,7 @@ $("#list_accordion .rateit").bind('over', function (event,value) { $(this).attr(
 
 <!--This is edit_item modal-->
 
-<div class="modal fade" id="edit_list_modal" tabindex="-1" role="dialog" aria-labelledby="deleteLabel" aria-hidden="true">
+<div class="modal fade" id="edit_list_modal" tabindex="-1" role="dialog" aria-labelledby="removeLabel" aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">

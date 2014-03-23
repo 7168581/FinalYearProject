@@ -356,16 +356,16 @@ app.post('/show-rate', function(req, res){
   });
   });
 
-//==========================delete an item=======================================
-app.get('/delete-item/:itemId', adminLogin);
-app.get('/delete-item/:itemId', function (req, res) {
+//==========================remove an item=======================================
+app.get('/remove-item/:itemId', adminLogin);
+app.get('/remove-item/:itemId', function (req, res) {
 	var itemId = new ObjectId(req.params.itemId);
 	Item.remove(itemId, function (err) {
     if (err) {
       req.flash('error', err); 
       return res.redirect('back');
     }
-    req.flash('success', 'Delete successfully!');
+    req.flash('success', 'Remove successfully!');
     res.redirect('/');
   });
 });
@@ -434,16 +434,16 @@ app.get('/permission/:userName', function (req, res) {
 		});
   });
   });
-//==========================delete an user=======================================
-app.get('/delete-user/:userName/:userId', adminLogin);
-app.get('/delete-user/:userName/:userId', function (req, res) {
+//==========================remove an user=======================================
+app.get('/remove-user/:userName/:userId', adminLogin);
+app.get('/remove-user/:userName/:userId', function (req, res) {
 	  var userId = new ObjectId(req.params.userId);
 	User.remove(userId, function (err) {
     if (err) {
       req.flash('error', err); 
       return res.redirect('back');
     }
-    req.flash('success', 'Delete user: ' + req.params.userName + ' successfully!');
+    req.flash('success', 'Remove user: ' + req.params.userName + ' successfully!');
     res.redirect('/user-management');
   });
 });
@@ -705,9 +705,9 @@ app.get('/delete-user/:userName/:userId', function (req, res) {
   });
 });
 
- //==========================delete an list=======================================
-app.get('/delete-list/:listId', adminLogin);
-app.get('/delete-list/:listId', function (req, res) {
+ //==========================remove an list=======================================
+app.get('/remove-list/:listId', adminLogin);
+app.get('/remove-list/:listId', function (req, res) {
 	var listId = new ObjectId(req.params.listId);
 	List.remove(listId, function (err) {
     if (err) {
@@ -715,7 +715,7 @@ app.get('/delete-list/:listId', function (req, res) {
       return res.redirect('back');
     }
 	req.session.userName = null;
-    req.flash('success', 'Delete successfully!');
+    req.flash('success', 'Remove successfully!');
 	if(listId == req.session.listId){
 		res.redirect('/all-items');
 	}else{
