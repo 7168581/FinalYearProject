@@ -187,13 +187,16 @@
 						</div>
 						<div>
 							<a type="button" class="btn btn-info btn-xs add_condition">Add</a>
+							<span class="pull-right">
+								<input type="text" class="form-control" required="required" maxlength="2" value="0">
+							</span>
 						</div>
 					</div>
 				</form>
 			</div>
 			<div class="modal-footer">
 				<a class="btn" data-dismiss="modal">Cancel</a>
-				<a class="btn btn-primary" id="create_list_confirm_btn">Create!</a>
+				<a class="btn btn-primary" id="create_list_by_rule_confirm_btn_1">Create!</a>
 			</div>
 		</div>
 	</div>
@@ -241,6 +244,34 @@ $(document).ready(function(){
 		});
 	});
 
+	$("#create_list_by_rule_confirm_btn_1").click(function(){
+		var url = "/generate-list-by-rule",
+			selected_rules = [],
+			selected_nums = [];
+		
+		$("#modal_body").find("select").each(function(){
+			selected_rules.push($(this).val());
+		});
+		$("#modal_body").find("input").each(function(){
+			selected_nums.push($(this).val());
+		});
+		console.log("selected_nums: " + selected_nums);
+		console.log("selected_rules: " + selected_rules);
+		
+		$.post(url,{
+					selected_rules: selected_rules,
+					selected_nums: selected_nums
+					},function(data){
+					if(data.status == 1){
+						window.location.href="/";
+					}else{
+						alert("Out of items\'s amount limit, Please repick numbers");
+					}
+		});
+		
+	});
+
+	
 	$("#search_button").click(function(){
 		var url = "/search-items",
 			rule = $("#search_rule").val(),
@@ -274,7 +305,7 @@ $("#modal_body").on('click', '.add_condition',function(){
 			"<a type='button' class='btn btn-info btn-xs add_condition'>Add</a>",
 			"<a type='button' class='btn btn-warning btn-xs remove_condition'>remove</a>",
 		"</div>"].join(""));
-	$(this).closest('form').append(newConditionForm);
+	$(this).closest('.form-group').before(newConditionForm);
 	
 	condition_num++;
 });
@@ -287,8 +318,6 @@ $("#modal_body").on('click', '.remove_condition',function(){
 $("#modal_body").on("click",".add_rule", function(){
 	var newRuleForm = $("<form>").attr({class: 'form-horizontal',
 										id: 'rule_form_' + rule_num});
-	
-	console.log(rule_num);
 	newRuleForm.html([
 	"<div class='form-group'>",
 		"<h4>",
@@ -310,9 +339,13 @@ $("#modal_body").on("click",".add_rule", function(){
 		"</div>",
 		"<div>",
 			"<a type='button' class='btn btn-info btn-xs add_condition'>Add</a>",
+			"<span class='pull-right'>",
+				"<input type='text' class='form-control' required='required' maxlength='2' value='0'>",
+			"</span>",
 		"</div>",
 	"</div>"
 	].join(""));
+//	$(this).closest('form').after(newRuleForm);
 	newRuleForm.appendTo("#modal_body");
 	
 	condition_num++;
