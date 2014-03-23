@@ -211,11 +211,11 @@ $("#remove_confirm_btn").click(function(){
 
 $('#item_accordion .rateit').bind('rated', function(event, value) {
 	var ri = $(this);
-	var rate_value = value;
+	var rated_value = value;
 	var rated_itemId = ri.data('id');
 	
 	var url_1 = "/add-item-rate";
-	$.post(url_1,{rating: rate_value, itemId: rated_itemId},function(data){
+	$.post(url_1,{rating: rated_value, itemId: rated_itemId},function(data){
 			alert('Rated successfully as: ' + value);
 	});
 });
@@ -253,6 +253,7 @@ function find_rate_function(itemId, userId){
 			itemId: itemId,
 			userId: userId
 			},function(data){
+			console.log(data.rating);
 			rate_value = data.rating;
 	});
 }
