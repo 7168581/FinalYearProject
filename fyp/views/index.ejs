@@ -43,6 +43,7 @@
 				<a href="/add-item" type="button" class="btn btn-info">Add an item</a>
 				<a href="#create_list_modal" type="button" class="btn btn-success" data-toggle="modal" >Create a List</a>
 				<a href="#generate_list" type="button" class="btn btn-primary" data-toggle="modal" >Generate a list!</a>
+				<a href="#generate_modal" type="button" class="btn btn-warning" data-toggle="modal" >Generate a list!</a>
 			</div>
 		</div>
 <% } %>
@@ -59,9 +60,10 @@
 </div>
 <% } %>
 
-<!--This is create_item modal-->
 
-<div class="modal fade" id="generate_list" tabindex="-1" role="dialog" aria-labelledby="deleteLabel" aria-hidden="true">
+<!--This is generate_list modal-->
+
+<div class="modal fade" id="generate_list" tabindex="-1" role="dialog" aria-labelledby="removeLabel" aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -154,9 +156,55 @@
 	</div>
 </div>
 
+
+<!--This is new generate_list modal-->
+
+<div class="modal fade" id="generate_modal" tabindex="-1" role="dialog" aria-labelledby="removeLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h3>Generate List!</h3>
+			</div>
+			<div class="modal-body" id="modal_body">
+				<form role="form" class="form-horizontal" id="rule_form_1">
+					<div class="form-group">
+						<h4>
+							<span class="label label-info">Rule</span>
+							<div class="pull-right">
+								<a type="button" class="btn btn-primary btn-xs add_rule">Add</a>
+							</div>
+						<h4>
+					</div>
+					<div class="form-group">
+						<div class="col-md-4">
+							<select class="form-control" id="condition_1">
+								<option>Random</option>
+								<option>Top Rated</option>
+								<option>Last updated</option>
+								<option>Last Added</option>
+							</select>
+						</div>
+						<div>
+							<a type="button" class="btn btn-info btn-xs add_condition">Add</a>
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<a class="btn" data-dismiss="modal">Cancel</a>
+				<a class="btn btn-primary" id="create_list_confirm_btn">Create!</a>
+			</div>
+		</div>
+	</div>
+</div>
+
+
 <script>
 var rule1, rule2, rule3, rule4;
 var num1, num2, num3, num4;
+var condition_num = 2;
+var rule_num = 2;
 
 var value = "Top Rated";
 $("#rule_2").val(value);
@@ -204,11 +252,75 @@ $(document).ready(function(){
 					if(data.status == 1){
 						window.location.href="/";
 					}else{
-						alert("Out of items\'s amount limit, Please repick numbers");
+						alert("error");
 					}
 		});
 	});
+	
+});
 
+$("#modal_body").on('click', '.add_condition',function(){
+	var newConditionForm = $("<div>").attr('class', 'form-group');
+	newConditionForm.html([
+		"<div class='col-md-4'>",
+			"<select class='form-control' id='condition_", condition_num, "'>",
+				"<option>Random</option>",
+				"<option>Top Rated</option>",
+				"<option>Last updated</option>",
+				"<option>Last Added</option>",
+			"</select>",
+		"</div>",
+		"<div>",
+			"<a type='button' class='btn btn-info btn-xs add_condition'>Add</a>",
+			"<a type='button' class='btn btn-warning btn-xs remove_condition'>remove</a>",
+		"</div>"].join(""));
+	$(this).closest('form').append(newConditionForm);
+	
+	condition_num++;
+});
+
+$("#modal_body").on('click', '.remove_condition',function(){
+	$(this).closest('.form-group').remove();
+});
+
+
+$("#modal_body").on("click",".add_rule", function(){
+	var newRuleForm = $("<form>").attr({class: 'form-horizontal',
+										id: 'rule_form_' + rule_num});
+	
+	console.log(rule_num);
+	newRuleForm.html([
+	"<div class='form-group'>",
+		"<h4>",
+			"<span class='label label-info'>Rule</span>",
+			"<div class='pull-right'>",
+				"<a type='button' class='btn btn-primary btn-xs add_rule'>Add</a>",
+				"<a type='button' class='btn btn-danger btn-xs remove_rule'>remove</a>",
+			"</div>",
+		"<h4>",
+	"</div>",
+	"<div class='form-group'>",
+		"<div class='col-md-4'>",
+			"<select class='form-control' id='rule_", condition_num, "'>",
+				"<option>Random</option>",
+				"<option>Top Rated</option>",
+				"<option>Last updated</option>",
+				"<option>Last Added</option>",
+			"</select>",
+		"</div>",
+		"<div>",
+			"<a type='button' class='btn btn-info btn-xs add_condition'>Add</a>",
+		"</div>",
+	"</div>"
+	].join(""));
+	newRuleForm.appendTo("#modal_body");
+	
+	condition_num++;
+	rule_num++;
+});
+
+$("#modal_body").on('click', '.remove_rule',function(){
+	$(this).closest('.form-horizontal').remove();
 });
 
 </script>
