@@ -134,7 +134,7 @@ Item.getAll = function(userName, listId, callback) {
   });
 };
 
-Item.getLimitNum = function(userName, listId, search_fields, page, limit, callback) {
+Item.getLimitNum = function(search_fields, page, limit, callback) {
   //open database
   mongodb.open(function (err, db) {
     if (err) {
@@ -145,18 +145,9 @@ Item.getLimitNum = function(userName, listId, search_fields, page, limit, callba
       if (err) {
         mongodb.close();
         return callback(err);
-      }
-      //look for a list of items created by a user called 'userName'
+      }	  
 	  var query = {};
-	  if(userName){
-		query.userName = userName;
-	  }
-	  if(listId){
-		query.listIdList = listId;
-	  }
-	  if(search_fields){
 		query = search_fields;
-	  }
 	  collection.count(query, function (err, total) {
 		  collection.find(query, {
 			skip: (page - 1) * limit,
