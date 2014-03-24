@@ -16,14 +16,8 @@ module.exports = function(app) {
 		titleName = req.session.titleName,
 		userName = req.session.userName,
 		limit = 10;
-		
-	if(req.session.listId == null){
-		var listId = req.session.listId;
-	}else{
-		var listId = new ObjectId(req.session.listId);
-	}
 
-  	Item.getLimitNum(userName, listId, fields, item_page, limit, function(err,items,item_total){
+  	Item.getLimitNum(fields, item_page, limit, function(err,items,item_total){
 		if(err){
 			items = [];
 		}
@@ -80,6 +74,7 @@ app.post('/show-rate', function(req, res){
 	var itemId = req.body.itemId,
 		listId = req.body.listId,
 		userId = req.body.userId;
+		
 	Rate.get(itemId, null, userId, function(err,rate){
 		if(err){
 			rate = null;
@@ -512,7 +507,7 @@ app.get('/remove-user/:userName/:userId', function (req, res) {
 	req.session.userName = req.params.userName,
 	req.session.listType = "none",
 	req.session.listId = null;
-	fields = {};
+	fields = {"userName": req.params.userName};
 	listName = null;
 	res.redirect('/');
   });
@@ -545,8 +540,6 @@ app.get('/remove-user/:userName/:userId', function (req, res) {
 	}else if(search_rule == "List title"){
 		listName = regExp;
 	}
-	console.log("fields: "+fields);
-	console.log("fields: "+JSON.stringify(fields));
 	req.session.titleName = "Search for " + search_rule + " contains \"" + search_word +"\"";
 	req.session.listType = "none";
 	req.session.userName = null;
@@ -776,7 +769,7 @@ app.get('/remove-user/:userName/:userId', function (req, res) {
 					req.session.userName = null;
 					req.session.listId = listId;
 					req.session.titleName = newList.listName;
-					fields = {};
+					fields = {"listIdList": listId};
 					listName = null;
 					res.send({"status": 2});
 				});
@@ -1031,7 +1024,7 @@ app.get('/view-list/:listId', function(req, res){
 		req.session.titleName = list.listName;
 		req.session.userName = null;
 		req.session.listType = "none";
-		fields = {};
+		fields = {"listIdList": list_id};
 		listName = null;
 		req.flash('success','selected list loading successfully');
 		res.redirect('/');
