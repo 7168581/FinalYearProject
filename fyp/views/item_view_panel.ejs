@@ -187,15 +187,15 @@ $(document).ready(function(){
 	});
 	
 	if('<%= itemFirstPage %>' == 'true'){
-		$("#item_page #first_item_page").addClass("disabled");
+		$("#item_page #first_item_page").hide();
 	}else{
-		$("#item_page #first_item_page").removeClass("disabled");
+		$("#item_page #first_item_page").show();
 	}
 	
 	if('<%= itemLastPage %>' == 'true'){
-		$("#item_page #last_item_page").addClass("disabled");
+		$("#item_page #last_item_page").hide();
 	}else{
-		$("#item_page #last_item_page").removeClass("disabled");
+		$("#item_page #last_item_page").show();
 	}
 });
 
@@ -261,14 +261,10 @@ function find_rate_function(itemId, userId){
 </script>
 		</div>
 	</div>
-	<div class="col-md-6 col-md-offset-3">
+	<div class="col-md-6 col-md-offset-4">
 		<ul class="pagination" id="item_page">
 		  <li id="first_item_page"><a href="?item_p=<%= item_page-1 %>">&laquo;</a></li>
-		  <li><a href="#">1</a></li>
-		  <li><a href="#">2</a></li>
-		  <li><a href="#">3</a></li>
-		  <li><a href="#">4</a></li>
-		  <li><a href="#">5</a></li>
+		  <li><span>Item Page <%= item_page %></span></li>
 		  <li id="last_item_page"><a href="?item_p=<%= item_page+1 %>">&raquo;</a></li>
 		</ul>
 	</div>

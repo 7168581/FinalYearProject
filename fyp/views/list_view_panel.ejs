@@ -110,15 +110,15 @@ $(document).ready(function(){
 	
 	
 	if('<%= listFirstPage %>' == 'true'){
-		$("#list_page #first_list_page").addClass("disabled");
+		$("#list_page #first_list_page").hide();
 	}else{
-		$("#list_page #first_list_page").removeClass("disabled");
+		$("#list_page #first_list_page").show();
 	}
 	
 	if('<%= listLastPage %>' == 'true'){
-		$("#list_page #last_list_page").addClass("disabled");
+		$("#list_page #last_list_page").hide();
 	}else{
-		$("#list_page #last_list_page").removeClass("disabled");
+		$("#list_page #last_list_page").show();
 	}
 	
 });
@@ -169,6 +169,7 @@ $("#list_accordion .rateit").bind('over', function (event,value) { $(this).attr(
 		<div class="col-md-6 col-md-offset-3">
 			<ul class="pagination" id="list_page">
 			  <li id="first_list_page"><a href="?list_p=<%= list_page-1 %>">&laquo;</a></li>
+			  <li><span>List Page <%= list_page %></span></li>
 			  <li id="last_list_page"><a href="?list_p=<%= list_page+1 %>">&raquo;</a></li>
 			</ul>
 		</div>
