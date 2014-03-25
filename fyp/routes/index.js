@@ -355,13 +355,26 @@ app.post('/show-rate', function(req, res){
 app.get('/remove-item/:itemId', adminLogin);
 app.get('/remove-item/:itemId', function (req, res) {
 	var itemId = new ObjectId(req.params.itemId);
+	
+	Item.get(null, itemId, function(err, item){
+	if (err) {
+      req.flash('error', err); 
+      return res.redirect('back');
+    }
 	Item.remove(itemId, function (err) {
     if (err) {
       req.flash('error', err); 
       return res.redirect('back');
     }
+	List.removeItemInfo(req.params.itemId, item.itemName, function(err){
+	if (err) {
+      req.flash('error', err); 
+      return res.redirect('back');
+    }
     req.flash('success', 'Remove successfully!');
     res.redirect('/');
+    });
+	});
   });
 });
 
@@ -782,8 +795,19 @@ app.get('/remove-user/:userName/:userId', function (req, res) {
 app.get('/remove-list/:listId', adminLogin);
 app.get('/remove-list/:listId', function (req, res) {
 	var listId = new ObjectId(req.params.listId);
+	List.get(null, listId, function(err, list){
+	if (err) {
+      req.flash('error', err); 
+      return res.redirect('back');
+    }
 	List.remove(listId, function (err) {
     if (err) {
+      req.flash('error', err); 
+      return res.redirect('back');
+    }
+	
+	Item.removeListInfo(listId, list.listName, function(err){
+	if (err) {
       req.flash('error', err); 
       return res.redirect('back');
     }
@@ -794,6 +818,8 @@ app.get('/remove-list/:listId', function (req, res) {
 	}else{
 		res.redirect('/');
 	}
+	});
+	});
   });
 });
 
