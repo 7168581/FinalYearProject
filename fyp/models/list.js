@@ -268,3 +268,35 @@ List.remove = function(listId, callback) {
     });
   });
 };
+
+List.removeItemInfo = function(itemId, itemName, callback) {
+  //open database
+  mongodb.open(function (err, db) {
+    if (err) {
+      return callback(err);
+    }
+    //get lists collection
+    db.collection('lists', function (err, collection) {
+      if (err) {
+        mongodb.close();
+        return callback(err);
+      }
+	var query = {};
+	  if(itemId){
+		query.itemIdList = itemId;
+	  }
+	  if(itemName){
+		query.itemNameList = itemName;
+	  }
+      collection.update(query, {
+        "$pull": query
+      }, { multi: true }, function (err) {
+        mongodb.close();
+        if (err) {
+          return callback(err);
+        }
+        callback(null);
+      });
+    });
+  });
+};
