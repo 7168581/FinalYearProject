@@ -75,7 +75,7 @@ app.post('/show-rate', function(req, res){
 		listId = req.body.listId,
 		userId = req.body.userId;
 		
-	Rate.get(itemId, null, userId, function(err,rate){
+	Rate.get(itemId, listId, userId, function(err,rate){
 		if(err){
 			rate = null;
 		}
@@ -86,7 +86,7 @@ app.post('/show-rate', function(req, res){
 		}
 	});
 });
- 
+
 //==========================register=======================================
   app.get('/reg', noLogin);
   app.get('/reg', function (req, res) {
@@ -530,7 +530,7 @@ app.get('/remove-user/:userName/:userId', function (req, res) {
 	var search_rule = req.body.search_rule,
 		search_word = req.body.search_word;
 	fields = {};
-	var regExp = new RegExp(search_word, 'i');
+	var regExp = new RegExp(search_word, 'gi');
 	if(search_rule == "All items"){
 		var temp_array = [{"itemName": regExp},
 						{"category": regExp},
