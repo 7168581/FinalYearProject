@@ -16,7 +16,7 @@ module.exports = function(app) {
 		titleName = req.session.titleName,
 		userName = req.session.userName,
 		limit = 10;
-
+		
   	Item.getLimitNum(fields, item_page, limit, function(err,items,item_total){
 		if(err){
 			items = [];
@@ -68,7 +68,7 @@ app.get('/all-items', function(req, res){
 	res.redirect('/');
 });
 
-//==========================get single rate=======================================
+//==========================get single item rate=======================================
 app.post('/show-rate', function(req, res){
 //show all rates to the homepage
 	var itemId = req.body.itemId,
@@ -529,7 +529,7 @@ app.get('/remove-user/:userName/:userId', function (req, res) {
   app.post('/search-items', function (req, res) {
 	var search_rule = req.body.search_rule,
 		search_word = req.body.search_word;
-//	var fields = {};
+	fields = {};
 	var regExp = new RegExp(search_word, 'i');
 	if(search_rule == "All items"){
 		var temp_array = [{"itemName": regExp},
@@ -552,6 +552,7 @@ app.get('/remove-user/:userName/:userId', function (req, res) {
 		fields.description = regExp;
 	}else if(search_rule == "List title"){
 		listName = regExp;
+		fields.listNameList = regExp;
 	}
 	req.session.titleName = "Search for " + search_rule + " contains \"" + search_word +"\"";
 	req.session.listType = "none";
@@ -951,7 +952,7 @@ app.post('/add-list-rate', function(req, res){
 });
 });
 
-//==========================add list AJAX=======================================
+//==========================add to list AJAX=======================================
 app.post('/add-to-list', function(req, res){
 	var listName = req.body.listName,
 		listId = new ObjectId(req.body.listId),
