@@ -9,7 +9,7 @@
 				<div class="panel panel-default">
 					<div class="panel-heading">
 						<h3 class="panel-title">
-							<a href="#panel_<%= list.listId %>" data-toggle="collapse" data-parent="#list_accordion">
+							<a href="#panel_<%= list.listId %>" data-toggle="collapse" data-parent="#list_accordion" onclick="find_list_rate_function('<%= list.listId %>', '<%= user.userId %>')">
 								<%= list.listName %>
 							</a>
 							<% if (user.userType == "admin") { %>
@@ -53,6 +53,8 @@
 							<p class="text-muted">
 								<strong>Rate: <span class="rateit"  id="rateit3" data-rateit-value="<%= list.rate %>" data-rateit-ispreset="true" data-rateit-readonly="true"></span></strong>
 								| <span class="rateit" id="list_rateit" data-id="<%= list.listId %>" data-rateit-resetable="false" data-rateit-ispreset="true"></span>
+							</p>
+							<p>
 								<span class="label label-info pull-right" id="list_rated">0</span>
 							</p>
 							<p><strong>Description:</strong></p>
@@ -75,6 +77,7 @@
 var list_id;
 var list_name;
 var list_info;
+var list_rate;
 
 $(document).ready(function(){
 //	$("#list_accordion .panel-collapse").first().collapse('show');
@@ -93,6 +96,14 @@ $(document).ready(function(){
 			}
 	});
 	});
+	
+	$("#list_accordion .panel-default").mouseover(function(){
+		if(list_rate == 0){
+			$(this).find('#list_rated').text("You've not rated this list yet");
+		}else{
+			$(this).find('#list_rated').text("You've rated this list: " + list_rate);
+		}
+	})
 	
 	$("#edit_list_confirm_btn").click(function(){
 		var url = "/edit-list";
@@ -162,6 +173,18 @@ $('#list_accordion .rateit').bind('rated', function(event, value) {
 });
 
 $("#list_accordion .rateit").bind('over', function (event,value) { $(this).attr('title', value); });
+
+function find_list_rate_function(listId, userId){
+
+	$.post('/show-rate',{
+			itemId: null,
+			listId: listId,
+			userId: userId
+			},function(data){
+			console.log(data.rating);
+			list_rate = data.rating;
+	});
+}
 
 </script>
 			</div>
