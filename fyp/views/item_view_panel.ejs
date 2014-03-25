@@ -17,7 +17,7 @@
 			<div class="panel panel-default" id="single_item">
 				<div class="panel-heading">
 					<h3 class="panel-title">
-						<a href="#panel_<%= item.itemId %>" data-toggle="collapse" data-parent="#item_accordion" onclick="find_rate_function('<%= item.itemId %>', '<%= user.userId %>')">
+						<a href="#panel_<%= item.itemId %>" data-toggle="collapse" data-parent="#item_accordion" onclick="find_item_rate_function('<%= item.itemId %>', '<%= user.userId %>')">
 							<%= item.itemName %>
 						</a>
 						<% if (user.userType == "admin") { %>
@@ -129,7 +129,7 @@
 						<p class="text-muted">
 							<strong>Rate: <span class="rateit" data-rateit-value="<%= item.rate %>" data-rateit-ispreset="true" data-rateit-readonly="true"></span></strong>
 							| <span class="rateit" id="rateit2" data-id="<%= item.itemId %>" data-rateit-resetable="false" data-rateit-ispreset="true"></span>
-							<span class="label label-info pull-right" id="rated">0</span>
+							<span class="label label-info pull-right" id="item_rated">0</span>
 						</p>
 						<p><strong>Description:</strong></p>
 						<p><%= item.description %></p>
@@ -142,7 +142,7 @@ var item_id,
 	item_name,
 	listName,
 	info,
-	rate_value = 0;
+	item_rate = 0;
 
 
 $(document).ready(function(){
@@ -156,10 +156,10 @@ $(document).ready(function(){
 	});
 	
 	$("#item_accordion .panel-default").mouseover(function(){
-		if(rate_value == 0){
-			$(this).find('#rated').text("You've not rated this item yet");
+		if(item_rate == 0){
+			$(this).find('#item_rated').text("You've not rated this item yet");
 		}else{
-			$(this).find('#rated').text("You've rated this item: " + rate_value);
+			$(this).find('#item_rated').text("You've rated this item: " + item_rate);
 		}
 	})
 	
@@ -247,14 +247,15 @@ function select_list_function(listName, listId, itemIdList, itemNameList, rate, 
 	});
 }
 
-function find_rate_function(itemId, userId){
+function find_item_rate_function(itemId, userId){
 
 	$.post('/show-rate',{
 			itemId: itemId,
+			listId: null,
 			userId: userId
 			},function(data){
 			console.log(data.rating);
-			rate_value = data.rating;
+			item_rate = data.rating;
 	});
 }
 
