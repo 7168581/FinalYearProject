@@ -560,99 +560,17 @@ app.get('/remove-user/:userName/:userId', function (req, res) {
 	req.session.listId = null;
 	res.send({"status": 1});
 });
-  
-//==========================system generate-list AJAX=======================================
-  app.post('/generate-list', function (req, res) {
-	var rule1 = req.body.rule1,
-		rule2 = req.body.rule2,
-		rule3 = req.body.rule3,
-		rule4 = req.body.rule4,
-		num1 = req.body.num1,
-		num2 = req.body.num2,
-		num3 = req.body.num3,
-		num4 = req.body.num4,
-		titleName = "New List",
-		tempList = [],
-		newItemList = [];
 
-	var pre_rules = ["Random","Top Rated","Last updated","Last Added"],
-		set_rules = [rule1,rule2,rule3,rule4],
-		nums = [num1,num2,num3,num4],
-		new_list_length = 0,
-		index_rules;
-	
-	Item.getAll(null, null, function(err, items){
-		if(err){
-			req.flash('error',err);
-			return res.redirect('back');
-		}
-		for(var i = 0; i < nums.length; i++){
-			new_list_length = new_list_length + parseInt(nums[i]);
-		}
-		if(new_list_length <= items.length){
-			for(var j = 0; j < nums.length; j++){
-				index_rules = pre_rules.indexOf(set_rules[j]);
-				if(index_rules == 0){
-					tempList = items;
-					for (var i = 0; i < num1; i++) {
-						var index = Math.floor(Math.random() * tempList.length);
-						var item = tempList[index];
-						newItemList.push(item);
-						tempList.splice(index, 1);
-					}
-				}
-				if(index_rules == 1){
-					tempList = items;
-					tempList.sort(compareBy("rate"));
-					tempList.reverse();
-					
-					for (var i = 0; i < num2; i++) {
-						var item = tempList[0];
-						newItemList.push(item);
-						tempList.splice(0, 1);
-					}
-				}
-				if(index_rules == 2){
-					tempList = items;
-					tempList.sort(compareDate("lastUpdatedTime"));
-					for (var i = 0; i < num3; i++) {
-						var item = tempList[0];
-						newItemList.push(item);
-						tempList.splice(0, 1);
-					}
-				}
-				if(index_rules == 3){
-					tempList = items;
-					tempList.sort(compareDate("addedTime"));
-					//tempList.reverse();
-					for (var i = 0; i < num4; i++) {
-						var item = tempList[0];
-						newItemList.push(item);
-						tempList.splice(0, 1);
-					}
-				}
-			}
-			req.session.items = newItemList;
-			req.session.titleName = titleName;
-			req.session.listType = "auto";
-			fields = {};
-			listName = null;
-			req.session.userName = null;
-			req.session.listId = null;
-			req.flash('success','Successfully generated!');
-			res.send({"status": 1});
-		}else{
-			res.send({"status": 0});
-		}
-	});
-  });
 
 //==========================system generate-list AJAX (new version)=======================================
   app.post('/generate-list-by-rule', function (req, res) {
 	var selected_rules = req.body.selected_rules,
 		selected_nums = req.body.selected_nums,
 		titleName = "New List",
+		num_of_items = 0;
 		tempList = [],
+		and_array = [],
+		removed_array = [];
 		newItemList = [];
 
 	var pre_rules = ["Random","Top Rated","Last updated","Last Added"],
@@ -669,47 +587,77 @@ app.get('/remove-user/:userName/:userId', function (req, res) {
 		}
 		if(new_list_length <= items.length){
 			for(var j = 0; j < selected_nums.length; j++){
-				index_rules = pre_rules.indexOf(selected_rules[j]);
-				if(index_rules == 0){
-					tempList = items;
-					for (var i = 0; i < selected_nums[j]; i++) {
-						var index = Math.floor(Math.random() * tempList.length);
-						var item = tempList[index];
-						newItemList.push(item);
-						tempList.splice(index, 1);
-					}
+				selected_conditions = selected_rules[j];
+				tempList = items;
+				num_of_items = selected_nums[j]*selected_conditions.length;
+				for(var k = 0; k < selected_conditions.length; k++){
+					index_rules = pre_rules.indexOf(selected_conditions[k]);
+						console.log("before --> num_of_items: " + num_of_items);
+						console.log("selected_conditions.length: " + selected_conditions.length);
+						
+						if(index_rules == 0){
+							for (var i = 0; i < num_of_items; i++) {
+								var index = Math.floor(Math.random() * tempList.length);
+								var item = tempList[index];
+								and_array.push(item);
+								tempList.splice(index, 1);
+								if(removed_array.indexOf(item) == -1){
+									removed_array.push(item);
+								}
+							}
+						}
+						if(index_rules == 1){
+							tempList.sort(compareBy("rate"));
+							tempList.reverse();
+							
+							for (var i = 0; i < num_of_items; i++) {
+								var item = tempList[0];
+								and_array.push(item);
+								tempList.splice(0, 1);
+							if(removed_array.indexOf(item) == -1){
+									removed_array.push(item);
+								}
+							}
+						}
+						if(index_rules == 2){
+							tempList = items;
+							tempList.sort(compareDate("lastUpdatedTime"));
+							tempList.reverse();
+							for (var i = 0; i < num_of_items; i++) {
+								var item = tempList[0];
+								and_array.push(item);
+								tempList.splice(0, 1);
+								if(removed_array.indexOf(item) == -1){
+									removed_array.push(item);
+								}
+							}
+						}
+						if(index_rules == 3){
+							tempList = items;
+							tempList.sort(compareDate("addedTime"));
+							tempList.reverse();
+							for (var i = 0; i < num_of_items; i++) {
+								var item = tempList[0];
+								and_array.push(item);
+								tempList.splice(0, 1);
+								if(removed_array.indexOf(item) == -1){
+									removed_array.push(item);
+								}
+							}
+						}
+						num_of_items = num_of_items - selected_nums[j];
+						console.log("after --> num_of_items: " + num_of_items);
+						tempList = and_array;
+						console.log("after --> tempList.length: " + tempList.length);
+						and_array = [];
 				}
-				if(index_rules == 1){
-					tempList = items;
-					tempList.sort(compareBy("rate"));
-					tempList.reverse();
-					
-					for (var i = 0; i < selected_nums[j]; i++) {
-						var item = tempList[0];
-						newItemList.push(item);
-						tempList.splice(0, 1);
-					}
-				}
-				if(index_rules == 2){
-					tempList = items;
-					tempList.sort(compareDate("lastUpdatedTime"));
-					tempList.reverse();
-					for (var i = 0; i < selected_nums[j]; i++) {
-						var item = tempList[0];
-						newItemList.push(item);
-						tempList.splice(0, 1);
-					}
-				}
-				if(index_rules == 3){
-					tempList = items;
-					tempList.sort(compareDate("addedTime"));
-					tempList.reverse();
-					for (var i = 0; i < selected_nums[j]; i++) {
-						var item = tempList[0];
-						newItemList.push(item);
-						tempList.splice(0, 1);
-					}
-				}
+				console.log("before --> items.length: "+items.length);
+				console.log("tempList.length: "+tempList.length);
+				console.log("removed_array.length: " + removed_array.length);
+				newItemList = newItemList.concat(tempList);
+				items = items.concat(removed_array);
+				console.log("after --> items.length: "+items.length);
+				
 			}
 			req.session.items = newItemList;
 			req.session.titleName = titleName;
