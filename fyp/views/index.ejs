@@ -42,7 +42,6 @@
 			<div class="pull-right">
 				<a href="/add-item" type="button" class="btn btn-info">Add an item</a>
 				<a href="#create_list_modal" type="button" class="btn btn-success" data-toggle="modal" >Create a List</a>
-				<a href="#generate_list" type="button" class="btn btn-primary" data-toggle="modal" >Generate a list!</a>
 				<a href="#generate_modal" type="button" class="btn btn-warning" data-toggle="modal" >Generate a list!</a>
 			</div>
 		</div>
@@ -61,102 +60,6 @@
 <% } %>
 
 
-<!--This is generate_list modal-->
-
-<div class="modal fade" id="generate_list" tabindex="-1" role="dialog" aria-labelledby="removeLabel" aria-hidden="true">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-				<h3>Generate a list!</h3>
-			</div>
-			<div class="modal-body">
-				<div class="form-group">
-					<div class="row">
-						<label class="col-md-2 control-label">Rules: </label>
-						<div class="col-md-4">
-							<select class="form-control" name="rule_1" id="rule_1">
-								<option>Random</option>
-								<option>Top Rated</option>
-								<option>Last updated</option>
-								<option>Last Added</option>
-							</select>
-						</div>
-						<div class="col-md-3">
-							<label class="control-label">Number of items</label>
-						</div>
-						<div class="col-md-2">
-							<input type="text" class="form-control" id="number_items_1" autofocus="autofocus" required="required" maxlength="2" value="3">
-						</div>
-					</div>
-				</div>
-				<div class="form-group">
-					<div class="row">
-						<label class="col-md-2 control-label">Rules: </label>
-						<div class="col-md-4">
-							<select class="form-control" name="rule_2" id="rule_2">
-								<option>Random</option>
-								<option>Top Rated</option>
-								<option>Last updated</option>
-								<option>Last Added</option>
-							</select>
-						</div>
-						<div class="col-md-3">
-							<label class="control-label">Number of items</label>
-						</div>
-						<div class="col-md-2">
-							<input type="text" class="form-control" id="number_items_2" autofocus="autofocus" required="required" maxlength="2" value="2">
-						</div>
-					</div>
-				</div>
-				<div class="form-group">
-					<div class="row">
-						<label class="col-md-2 control-label">Rules: </label>
-						<div class="col-md-4">
-							<select class="form-control" name="rule_3" id="rule_3">
-								<option>Random</option>
-								<option>Top Rated</option>
-								<option selected="true">Last updated</option>
-								<option>Last Added</option>
-							</select>
-						</div>
-						<div class="col-md-3">
-							<label class="control-label">Number of items</label>
-						</div>
-						<div class="col-md-2">
-							<input type="text" class="form-control" id="number_items_3" autofocus="autofocus" required="required" maxlength="2" value="0">
-						</div>
-					</div>
-				</div>
-				<div class="form-group">
-					<div class="row">
-						<label class="col-md-2 control-label">Rules: </label>
-						<div class="col-md-4">
-							<select class="form-control" name="rule_4" id="rule_4">
-								<option>Random</option>
-								<option>Top Rated</option>
-								<option>Last updated</option>
-								<option selected="true">Last Added</option>
-							</select>
-						</div>
-						<div class="col-md-3">
-							<label class="control-label">Number of items</label>
-						</div>
-						<div class="col-md-2">
-							<input type="text" class="form-control" id="number_items_4" autofocus="autofocus" required="required" maxlength="2" value="0">
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="modal-footer">
-				<a class="btn" data-dismiss="modal" id="cancel_create">Cancel</a>
-				<a class="btn btn-primary" id="create_list_by_rule_confirm_btn">Create!</a>
-			</div>
-		</div>
-	</div>
-</div>
-
-
 <!--This is new generate_list modal-->
 
 <div class="modal fade" id="generate_modal" tabindex="-1" role="dialog" aria-labelledby="removeLabel" aria-hidden="true">
@@ -167,7 +70,7 @@
 				<h3>Generate List!</h3>
 			</div>
 			<div class="modal-body" id="modal_body">
-				<form role="form" class="form-horizontal" id="rule_form_1">
+				<form role="form" class="form-horizontal generate_rule" id="rule_form_1">
 					<div class="form-group">
 						<h4>
 							<span class="label label-info">Rule</span>
@@ -204,70 +107,54 @@
 
 
 <script>
-var rule1, rule2, rule3, rule4;
-var num1, num2, num3, num4;
 var condition_num = 2;
 var rule_num = 2;
+var match = false;
+var limit_num_of_item = 5;
 
 var value = "Top Rated";
 $("#rule_2").val(value);
 $("#edit_item_category").change();
 
 $(document).ready(function(){
-	$("#create_list_by_rule_confirm_btn").click(function(){
-		var url = "/generate-list",
-		rule1 = $("#rule_1").val(),
-		num1 = $("#number_items_1").val();
-		rule2 = $("#rule_2").val(),
-		num2 = $("#number_items_2").val();
-		rule3 = $("#rule_3").val(),
-		num3 = $("#number_items_3").val();
-		rule4 = $("#rule_4").val(),
-		num4 = $("#number_items_4").val();
-
-		$.post(url,{
-					rule1: rule1, 
-					rule2: rule2, 
-					rule3: rule3, 
-					rule4: rule4, 
-					num1: num1,
-					num2: num2,
-					num3: num3,
-					num4: num4,
-					itemPage: 1
-					},function(data){
-					if(data.status == 1){
-						window.location.href="/";
-					}else{
-						alert("Out of items\'s amount limit, Please repick numbers");
-					}
-		});
-	});
 
 	$("#create_list_by_rule_confirm_btn_1").click(function(){
 		var url = "/generate-list-by-rule",
 			selected_rules = [],
+			selected_conditions = [],
 			selected_nums = [];
-		
-		$("#modal_body").find("select").each(function(){
-			selected_rules.push($(this).val());
+		$("#modal_body").find(".generate_rule").each(function(){
+			$(this).find("select").each(function(){
+				selected_conditions.push($(this).val());
+			});
+			selected_rules.push(selected_conditions);
+			selected_conditions = [];
 		});
 		$("#modal_body").find("input").each(function(){
+			if($(this).val() > limit_num_of_item){
+				match = false;
+			}else{
+				match = true;
+			}
 			selected_nums.push($(this).val());
 		});
 		console.log("selected_nums: " + selected_nums);
-		console.log("selected_rules: " + selected_rules);
-		
-		$.post(url,{
-					selected_rules: selected_rules,
-					selected_nums: selected_nums
-					},function(data){
-					if(data.status == 1){
-						window.location.href="/";
-					}else{
-						alert("Out of items\'s amount limit, Please repick numbers");
-					}
-		});
+		console.log("selected_rules.length: " + selected_rules.length);
+
+		if(match){
+			$.post(url,{
+						selected_rules: selected_rules,
+						selected_nums: selected_nums
+						},function(data){
+						if(data.status == 1){
+							window.location.href="/";
+						}else{
+							alert("Out of items\'s amount limit, Please repick numbers");
+						}
+			});
+		}else{
+			alert("Sorry, you can only view at most 5 items per rule at once");
+		}
 		
 	});
 
@@ -316,7 +203,7 @@ $("#modal_body").on('click', '.remove_condition',function(){
 
 
 $("#modal_body").on("click",".add_rule", function(){
-	var newRuleForm = $("<form>").attr({class: 'form-horizontal',
+	var newRuleForm = $("<form>").attr({class: 'form-horizontal generate_rule',
 										id: 'rule_form_' + rule_num});
 	newRuleForm.html([
 	"<div class='form-group'>",
@@ -330,7 +217,7 @@ $("#modal_body").on("click",".add_rule", function(){
 	"</div>",
 	"<div class='form-group'>",
 		"<div class='col-md-4'>",
-			"<select class='form-control' id='rule_", condition_num, "'>",
+			"<select class='form-control' id='condition_", condition_num, "'>",
 				"<option>Random</option>",
 				"<option>Top Rated</option>",
 				"<option>Last updated</option>",
