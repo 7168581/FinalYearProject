@@ -138,8 +138,6 @@ $(document).ready(function(){
 			}
 			selected_nums.push($(this).val());
 		});
-		console.log("selected_nums: " + selected_nums);
-		console.log("selected_rules.length: " + selected_rules.length);
 
 		if(match){
 			$.post(url,{
@@ -178,23 +176,30 @@ $(document).ready(function(){
 });
 
 $("#modal_body").on('click', '.add_condition',function(){
-	var newConditionForm = $("<div>").attr('class', 'form-group');
-	newConditionForm.html([
-		"<div class='col-md-4'>",
-			"<select class='form-control' id='condition_", condition_num, "'>",
-				"<option>Random</option>",
-				"<option>Top Rated</option>",
-				"<option>Last updated</option>",
-				"<option>Last Added</option>",
-			"</select>",
-		"</div>",
-		"<div>",
-			"<a type='button' class='btn btn-info btn-xs add_condition'>Add</a>",
-			"<a type='button' class='btn btn-warning btn-xs remove_condition'>remove</a>",
-		"</div>"].join(""));
-	$(this).closest('.form-group').before(newConditionForm);
-	
-	condition_num++;
+	var num_of_condition = 0;
+	$(this).closest('.form-horizontal').find("select").each(function(){
+		num_of_condition++;
+	});
+
+	if(num_of_condition < 3){
+		var newConditionForm = $("<div>").attr('class', 'form-group');
+		newConditionForm.html([
+			"<div class='col-md-4'>",
+				"<select class='form-control' id='condition_", condition_num, "'>",
+					"<option>Random</option>",
+					"<option>Top Rated</option>",
+					"<option>Last updated</option>",
+					"<option>Last Added</option>",
+				"</select>",
+			"</div>",
+			"<div>",
+				"<a type='button' class='btn btn-info btn-xs add_condition'>Add</a>",
+				"<a type='button' class='btn btn-warning btn-xs remove_condition'>remove</a>",
+			"</div>"].join(""));
+		$(this).closest('.form-group').before(newConditionForm);
+		
+		condition_num++;
+	}
 });
 
 $("#modal_body").on('click', '.remove_condition',function(){
@@ -203,40 +208,47 @@ $("#modal_body").on('click', '.remove_condition',function(){
 
 
 $("#modal_body").on("click",".add_rule", function(){
-	var newRuleForm = $("<form>").attr({class: 'form-horizontal generate_rule',
-										id: 'rule_form_' + rule_num});
-	newRuleForm.html([
-	"<div class='form-group'>",
-		"<h4>",
-			"<span class='label label-info'>Rule</span>",
-			"<div class='pull-right'>",
-				"<a type='button' class='btn btn-primary btn-xs add_rule'>Add</a>",
-				"<a type='button' class='btn btn-danger btn-xs remove_rule'>remove</a>",
+	var num_of_rule = 0;
+	$(this).closest('#modal_body').find("form").each(function(){
+		num_of_rule++;
+	});
+
+	if(num_of_rule < 3){
+		var newRuleForm = $("<form>").attr({class: 'form-horizontal generate_rule',
+											id: 'rule_form_' + rule_num});
+		newRuleForm.html([
+		"<div class='form-group'>",
+			"<h4>",
+				"<span class='label label-info'>Rule</span>",
+				"<div class='pull-right'>",
+					"<a type='button' class='btn btn-primary btn-xs add_rule'>Add</a>",
+					"<a type='button' class='btn btn-danger btn-xs remove_rule'>remove</a>",
+				"</div>",
+			"<h4>",
+		"</div>",
+		"<div class='form-group'>",
+			"<div class='col-md-4'>",
+				"<select class='form-control' id='condition_", condition_num, "'>",
+					"<option>Random</option>",
+					"<option>Top Rated</option>",
+					"<option>Last updated</option>",
+					"<option>Last Added</option>",
+				"</select>",
 			"</div>",
-		"<h4>",
-	"</div>",
-	"<div class='form-group'>",
-		"<div class='col-md-4'>",
-			"<select class='form-control' id='condition_", condition_num, "'>",
-				"<option>Random</option>",
-				"<option>Top Rated</option>",
-				"<option>Last updated</option>",
-				"<option>Last Added</option>",
-			"</select>",
-		"</div>",
-		"<div>",
-			"<a type='button' class='btn btn-info btn-xs add_condition'>Add</a>",
-			"<span class='pull-right'>",
-				"<input type='text' class='form-control' required='required' maxlength='2' value='0'>",
-			"</span>",
-		"</div>",
-	"</div>"
-	].join(""));
-//	$(this).closest('form').after(newRuleForm);
-	newRuleForm.appendTo("#modal_body");
-	
-	condition_num++;
-	rule_num++;
+			"<div>",
+				"<a type='button' class='btn btn-info btn-xs add_condition'>Add</a>",
+				"<span class='pull-right'>",
+					"<input type='text' class='form-control' required='required' maxlength='2' value='0'>",
+				"</span>",
+			"</div>",
+		"</div>"
+		].join(""));
+	//	$(this).closest('form').after(newRuleForm);
+		newRuleForm.appendTo("#modal_body");
+		
+		condition_num++;
+		rule_num++;
+	}
 });
 
 $("#modal_body").on('click', '.remove_rule',function(){
