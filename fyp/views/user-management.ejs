@@ -24,7 +24,7 @@
 								<div class="col-md-4">
 								<% if(user.name != "admin") { %>
 									<div class="pull-right btn-group hidden" id="user_dropdown">
-										<button type="button" class="btn btn-danger dropdown-toggle btn-xs" data-toggle="dropdown">Action<span class="caret"></span></button>
+										<button type="button" class="btn btn-danger dropdown-toggle btn-xs" data-toggle="dropdown">More<span class="caret"></span></button>
 										<ul class="dropdown-menu" role="menu">
 											<li><a class="edit" href="/permission/<%= user.name %>">Give permission</a></li>
 											<li><a class="edit" href="#edit_user_modal" data-toggle="modal" onclick="edit_user_function('<%= user.userId %>', '<%= user.name %>', '<%= user.userType %>', '<%= user.email %>')">Edit</a></li>
@@ -132,7 +132,6 @@ $(document).ready(function(){
 		user_name = $("#edit_userName").val();
 		user_email = $("#edit_email").val();
 		user_type = $("#edit_userType").val();
-		console.log("panel --> listName " + user_name);
 		$.post(url,
 				{name: user_name, 
 				userId: user_id, 
@@ -163,7 +162,6 @@ function edit_user_function(userId, name, userType, email){
 	user_id = userId;
 	user_type = userType;
 	user_email = email;
-	console.log(userId);
 	$("#edit_user_modal_h3").text("Edit \"" + name + "\"");
 	$("#edit_userName").val(user_name);
 	$("#edit_email").val(email);
