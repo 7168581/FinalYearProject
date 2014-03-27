@@ -6,7 +6,8 @@ var crypto = require('crypto'),
 	Rate = require('../models/rate.js');
 	
 var fields = {},
-	listName = null;
+	listName = null,
+	userName = null;
 
 module.exports = function(app) {
   app.get('/', function (req, res) {
@@ -14,7 +15,6 @@ module.exports = function(app) {
 	var item_page = req.query.item_p ? parseInt(req.query.item_p):1,
 		list_page = req.query.list_p ? parseInt(req.query.list_p):1,
 		titleName = req.session.titleName,
-		userName = req.session.userName,
 		limit = 10;
 		
   	Item.getLimitNum(fields, item_page, limit, function(err,items,item_total){
@@ -59,7 +59,7 @@ module.exports = function(app) {
 //==========================show all items=======================================
 app.get('/all-items', function(req, res){
 //show all items to the homepage
-	req.session.userName = null;
+	userName = null;
 	req.session.listId = null;
 	req.session.titleName = "All items";
 	req.session.listType = "none";
@@ -285,6 +285,7 @@ app.post('/show-rate', function(req, res){
 });
   
 //==========================user management=======================================
+app.get('/user-management', adminLogin);
   app.get('/user-management', function (req, res) {
   	User.getAll(null, function(err,users){
 		if(err){
@@ -513,11 +514,11 @@ app.get('/remove-user/:userName/:userId', function (req, res) {
 });
 
 //==========================lists made by a specific admin=======================================
-  app.get('/user/:userName', adminLogin);
+  app.get('/user/:userName', isLogin);
   app.get('/user/:userName', function (req, res) {
 	req.session.titleName = req.params.userName,
 	req.flash('success','Successfully loaded items and lists made by ' + req.params.userName),
-	req.session.userName = req.params.userName,
+	userName = req.params.userName,
 	req.session.listType = "none",
 	req.session.listId = null;
 	fields = {"userName": req.params.userName};
@@ -530,16 +531,19 @@ app.get('/remove-user/:userName/:userId', function (req, res) {
 	var search_rule = req.body.search_rule,
 		search_word = req.body.search_word;
 	fields = {};
+	listName = null;
+	userName = null;
+	
 	var regExp = new RegExp(search_word, 'gi');
 	if(search_rule == "All items"){
 		var temp_array = [{"itemName": regExp},
 						{"category": regExp},
 						{"keyword": regExp},
 						{"description": regExp},
-//						{"itemName": regExp},
 						{"userName": regExp}
 						];
 		fields = {"$or": temp_array};
+		userName = regExp;
 	}else if(search_rule == "Item title"){
 		fields.itemName = regExp;
 	}else if(search_rule == "Category"){
@@ -548,6 +552,7 @@ app.get('/remove-user/:userName/:userId', function (req, res) {
 		fields.keyword = regExp;
 	}else if(search_rule == "User name"){
 		fields.userName = regExp;
+		userName = regExp;
 	}else if(search_rule == "Item description"){
 		fields.description = regExp;
 	}else if(search_rule == "List title"){
@@ -556,7 +561,6 @@ app.get('/remove-user/:userName/:userId', function (req, res) {
 	}
 	req.session.titleName = "Search for " + search_rule + " contains \"" + search_word +"\"";
 	req.session.listType = "none";
-	req.session.userName = null;
 	req.session.listId = null;
 	res.send({"status": 1});
 });
@@ -577,7 +581,14 @@ app.get('/remove-user/:userName/:userId', function (req, res) {
 		new_list_length = 0,
 		index_rules;
 	
-	Item.getAll(null, null, function(err, items){
+	if (fields.userName===undefined){
+		fields.userName=null;
+	}
+	if (fields.listId===undefined){
+		fields.listId=null;
+	}
+		
+	Item.getAll(fields.userName, fields.listId, function(err, items){
 		if(err){
 			req.flash('error',err);
 			return res.redirect('back');
@@ -592,8 +603,6 @@ app.get('/remove-user/:userName/:userId', function (req, res) {
 				num_of_items = selected_nums[j]*selected_conditions.length;
 				for(var k = 0; k < selected_conditions.length; k++){
 					index_rules = pre_rules.indexOf(selected_conditions[k]);
-						console.log("before --> num_of_items: " + num_of_items);
-						console.log("selected_conditions.length: " + selected_conditions.length);
 						
 						if(index_rules == 0){
 							for (var i = 0; i < num_of_items; i++) {
@@ -646,25 +655,18 @@ app.get('/remove-user/:userName/:userId', function (req, res) {
 							}
 						}
 						num_of_items = num_of_items - selected_nums[j];
-						console.log("after --> num_of_items: " + num_of_items);
 						tempList = and_array;
-						console.log("after --> tempList.length: " + tempList.length);
 						and_array = [];
 				}
-				console.log("before --> items.length: "+items.length);
-				console.log("tempList.length: "+tempList.length);
-				console.log("removed_array.length: " + removed_array.length);
 				newItemList = newItemList.concat(tempList);
 				items = items.concat(removed_array);
-				console.log("after --> items.length: "+items.length);
-				
 			}
 			req.session.items = newItemList;
 			req.session.titleName = titleName;
 			req.session.listType = "auto";
 			fields = {};
 			listName = null;
-			req.session.userName = null;
+			userName = null;
 			req.session.listId = null;
 			req.flash('success','Successfully generated!');
 			res.send({"status": 1});
@@ -728,7 +730,7 @@ app.get('/remove-user/:userName/:userId', function (req, res) {
 				newItem.multi_update(items, listId, newList.listName, function(err){
 					req.flash('success','Successfully saved');
 					req.session.listType = "none";
-					req.session.userName = null;
+					userName = null;
 					req.session.listId = listId;
 					req.session.titleName = newList.listName;
 					fields = {"listIdList": listId};
@@ -760,7 +762,7 @@ app.get('/remove-list/:listId', function (req, res) {
       req.flash('error', err); 
       return res.redirect('back');
     }
-	req.session.userName = null;
+	userName = null;
     req.flash('success', 'Remove successfully!');
 	if(listId == req.session.listId){
 		res.redirect('/all-items');
@@ -989,6 +991,7 @@ app.post('/add-to-list', function(req, res){
   });
 
 //==========================view list=======================================
+app.get('/view-list/:listId', isLogin);
 app.get('/view-list/:listId', function(req, res){
 	var listId = req.params.listId;
 	
@@ -997,7 +1000,7 @@ app.get('/view-list/:listId', function(req, res){
 	List.get(null, list_id, function(err, list){
 		req.session.listId = list_id;
 		req.session.titleName = list.listName;
-		req.session.userName = null;
+		userName = null;
 		req.session.listType = "none";
 		fields = {"listIdList": list_id};
 		listName = null;
