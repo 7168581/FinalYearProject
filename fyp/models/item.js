@@ -299,7 +299,6 @@ Item.removeListInfo = function(listId, listName, callback) {
 	  if(listName){
 		query.listNameList = listName;
 	  }
-	  console.log("query: " + JSON.stringify(query));
       collection.update(query, {
         "$pull": query
       }, { multi: true }, function (err) {
