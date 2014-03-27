@@ -516,7 +516,7 @@ app.get('/remove-user/:userName/:userId', function (req, res) {
 //==========================lists made by a specific admin=======================================
   app.get('/user/:userName', isLogin);
   app.get('/user/:userName', function (req, res) {
-	req.session.titleName = req.params.userName,
+	req.session.titleName = "User: " + req.params.userName,
 	req.flash('success','Successfully loaded items and lists made by ' + req.params.userName),
 	userName = req.params.userName,
 	req.session.listType = "none",
@@ -570,7 +570,7 @@ app.get('/remove-user/:userName/:userId', function (req, res) {
   app.post('/generate-list-by-rule', function (req, res) {
 	var selected_rules = req.body.selected_rules,
 		selected_nums = req.body.selected_nums,
-		titleName = "New List",
+		titleName = "New Generated List",
 		num_of_items = 0;
 		tempList = [],
 		and_array = [],
@@ -732,7 +732,7 @@ app.get('/remove-user/:userName/:userId', function (req, res) {
 					req.session.listType = "none";
 					userName = null;
 					req.session.listId = listId;
-					req.session.titleName = newList.listName;
+					req.session.titleName = "List name" + newList.listName;
 					fields = {"listIdList": listId};
 					listName = null;
 					res.send({"status": 2});
@@ -999,7 +999,7 @@ app.get('/view-list/:listId', function(req, res){
 	var list_id = new ObjectId(listId);
 	List.get(null, list_id, function(err, list){
 		req.session.listId = list_id;
-		req.session.titleName = list.listName;
+		req.session.titleName = "List name: " + list.listName;
 		userName = null;
 		req.session.listType = "none";
 		fields = {"listIdList": list_id};
