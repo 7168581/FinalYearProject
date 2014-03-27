@@ -3,7 +3,7 @@
 	<h3><%= titleName %>
 		<% if (listType == "auto") { %>
 			<div class="pull-right btn-group hidden" id="list_title_dropdown">
-				<button type="button" class="btn btn-warning dropdown-toggle btn-xs" data-toggle="dropdown">Action<span class="caret"></span></button>
+				<button type="button" class="btn btn-warning dropdown-toggle btn-xs" data-toggle="dropdown">more<span class="caret"></span></button>
 				<ul class="dropdown-menu" role="menu">
 					<li><a href="#save_list_modal" data-toggle="modal" onclick="save_list_function()">Save</a></li>
 				</ul>
@@ -22,7 +22,7 @@
 						</a>
 						<% if (user.userType == "admin") { %>
 							<div class="pull-right btn-group hidden" id="item_dropdown">
-								<button type="button" class="btn btn-primary dropdown-toggle btn-xs" data-toggle="dropdown">Action<span class="caret"></span></button>
+								<button type="button" class="btn btn-primary dropdown-toggle btn-xs" data-toggle="dropdown">more<span class="caret"></span></button>
 								<ul class="dropdown-menu" role="menu">
 									<li><a href="#add_to_list_modal" data-toggle="modal" onclick="add_to_list_function('<%= item.itemName %>', '<%= item.itemId %>')">Add to</a></li>
 									<li><a href="/edit-item/<%= item.itemId %>">Edit</a></li>
@@ -254,7 +254,6 @@ function find_item_rate_function(itemId, userId){
 			listId: null,
 			userId: userId
 			},function(data){
-			console.log(data.rating);
 			item_rate = data.rating;
 	});
 }
