@@ -1,4 +1,4 @@
-<% if (user.userType == "admin") { %>
+<% if (user) { %>
 	<div class="col-md-3 col-md-offset-1">
 	<div class="center-block">
 		<h3 class="text-primary">Lists<h3>
@@ -14,13 +14,17 @@
 							</a>
 							<% if (user.userType == "admin") { %>
 								<div class="pull-right btn-group hidden" id="list_dropdown">
-									<button type="button" class="btn btn-danger dropdown-toggle btn-xs" data-toggle="dropdown">Action<span class="caret"></span></button>
+									<button type="button" class="btn btn-danger dropdown-toggle btn-xs" data-toggle="dropdown">more<span class="caret"></span></button>
 									<ul class="dropdown-menu" role="menu">
 										<li><a href="/view-list/<%= list.listId %>">View</a></li>
 										<li><a href="#edit_list_modal" data-toggle="modal" onclick="edit_list_function('<%= list.listName %>', '<%= list.info %>')">Edit</a></li>
 										<li><a href="#remove_list_modal" data-toggle="modal" onclick="remove_list_function('<%= list.listId %>', '<%= list.listName %>')" id="remove_list">remove</a></li>
 									</ul>
 								</div>
+							<% }else{ %>
+								<span class="pull-right hidden" id="list_dropdown">
+									<a href="/view-list/<%= list.listId %>" class="btn btn-danger btn-xs">View</a>
+								</span>
 							<% } %>
 						</h3>
 <!--This is remove_list modal-->
@@ -77,7 +81,7 @@
 var list_id;
 var list_name;
 var list_info;
-var list_rate;
+var list_rate = 0;
 
 $(document).ready(function(){
 //	$("#list_accordion .panel-collapse").first().collapse('show');
@@ -181,7 +185,6 @@ function find_list_rate_function(listId, userId){
 			listId: listId,
 			userId: userId
 			},function(data){
-			console.log(data.rating);
 			list_rate = data.rating;
 	});
 }
